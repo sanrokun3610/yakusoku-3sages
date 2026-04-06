@@ -352,57 +352,67 @@ function updateBudget(budget) {
 }
 
 // ============================================================
-// API 呼び出し（JSONP方式 - GASのCORS制約を回避）
+// API 呼び出し（form POST + JSONP コールバック方式）
+// GASのURL長制限を回避するためPOSTフォームで送信
 // ============================================================
 function callAPI(messages) {
   return new Promise((resolve, reject) => {
     const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const scriptId = 'jsonp_' + callbackName;
+    const iframeId = 'iframe_' + callbackName;
+    const formId = 'form_' + callbackName;
 
-    const payload = encodeURIComponent(JSON.stringify({
+    const bodyData = JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
       system: SYSTEM,
       messages,
-    }));
-
-    const url = GAS_URL + '?callback=' + callbackName + '&payload=' + payload;
+      callback: callbackName,
+    });
 
     const cleanup = () => {
       delete window[callbackName];
-      document.getElementById(scriptId)?.remove();
+      document.getElementById(iframeId)?.remove();
+      document.getElementById(formId)?.remove();
     };
 
     const timer = setTimeout(() => {
       cleanup();
       reject(new Error('タイムアウトしました。もう一度試してください。'));
-    }, 30000);
+    }, 35000);
 
     window[callbackName] = function(data) {
       clearTimeout(timer);
       cleanup();
-
-      if (data.error === 'BUDGET_EXCEEDED') {
-        return reject(new Error(data.message));
-      }
-      if (data.error) {
-        return reject(new Error(data.message || data.error));
-      }
+      if (data.error === 'BUDGET_EXCEEDED') return reject(new Error(data.message));
+      if (data.error) return reject(new Error(data.message || data.error));
       if (data._budget) updateBudget(data._budget);
-
       const raw = data.content?.map(i => i.text || '').join('') || '';
       resolve(raw);
     };
 
-    const script = document.createElement('script');
-    script.id = scriptId;
-    script.src = url;
-    script.onerror = () => {
-      clearTimeout(timer);
-      cleanup();
-      reject(new Error('通信エラーが発生しました'));
-    };
-    document.body.appendChild(script);
+    // 非表示iframe作成
+    const iframe = document.createElement('iframe');
+    iframe.id = iframeId;
+    iframe.name = iframeId;
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    // POSTフォーム作成
+    const form = document.createElement('form');
+    form.id = formId;
+    form.method = 'POST';
+    form.action = GAS_URL;
+    form.target = iframeId;
+    form.style.display = 'none';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payload';
+    input.value = bodyData;
+    form.appendChild(input);
+
+    document.body.appendChild(form);
+    form.submit();
   });
 }
 
