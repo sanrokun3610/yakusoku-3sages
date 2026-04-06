@@ -356,7 +356,9 @@ function updateBudget(budget) {
 // ============================================================
 function callAPI(messages) {
   return new Promise((resolve, reject) => {
-    const callbackName = 'cb_' + Date.now();
+    const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const scriptId = 'jsonp_' + callbackName;
+
     const payload = encodeURIComponent(JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
@@ -366,9 +368,19 @@ function callAPI(messages) {
 
     const url = GAS_URL + '?callback=' + callbackName + '&payload=' + payload;
 
-    window[callbackName] = function(data) {
+    const cleanup = () => {
       delete window[callbackName];
-      document.getElementById('jsonp-script')?.remove();
+      document.getElementById(scriptId)?.remove();
+    };
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('タイムアウトしました。もう一度試してください。'));
+    }, 30000);
+
+    window[callbackName] = function(data) {
+      clearTimeout(timer);
+      cleanup();
 
       if (data.error === 'BUDGET_EXCEEDED') {
         return reject(new Error(data.message));
@@ -383,10 +395,11 @@ function callAPI(messages) {
     };
 
     const script = document.createElement('script');
-    script.id = 'jsonp-script';
+    script.id = scriptId;
     script.src = url;
     script.onerror = () => {
-      delete window[callbackName];
+      clearTimeout(timer);
+      cleanup();
       reject(new Error('通信エラーが発生しました'));
     };
     document.body.appendChild(script);
