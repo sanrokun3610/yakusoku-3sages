@@ -225,7 +225,7 @@
     <span class="badge ray">Ray</span>
     <span class="badge arc">Arc</span>
     <span class="badge shade">Shade</span>
-    <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">2026-04-06 21:27</span>
+    <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">2026-04-07 07:35</span>
     <span id="budget-display"></span>
   </div>
 
@@ -365,6 +365,7 @@ function callAPI(userMessage) {
     const url = GAS_URL
       + '?callback=' + callbackName
       + '&action=chat'
+      + '&user=' + encodeURIComponent(getUserName())
       + '&message=' + encodeURIComponent(userMessage);
 
     const cleanup = () => {
@@ -402,7 +403,7 @@ function resetHistory() {
   return new Promise((resolve) => {
     const callbackName = 'cb_reset_' + Date.now();
     const scriptId = 'jsonp_' + callbackName;
-    const url = GAS_URL + '?callback=' + callbackName + '&action=reset';
+    const url = GAS_URL + '?callback=' + callbackName + '&action=reset&user=' + encodeURIComponent(getUserName());
     window[callbackName] = function(data) {
       delete window[callbackName];
       document.getElementById(scriptId)?.remove();
@@ -417,10 +418,14 @@ function resetHistory() {
 
 function parseReplies(raw) {
   try {
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const arr = JSON.parse(clean);
-    if (Array.isArray(arr)) return arr;
+    // JSON配列部分だけ抽出（前後のゴミを除去）
+    const match = raw.match(/\[[\s\S]*\]/);
+    if (match) {
+      const arr = JSON.parse(match[0]);
+      if (Array.isArray(arr) && arr.length > 0) return arr;
+    }
   } catch (e) {}
+  // JSONパース失敗時はArcが全文表示（デバッグ用）
   return [{ char: 'arc', message: raw }];
 }
 
@@ -454,13 +459,7 @@ async function runConversation(userText) {
 // ============================================================
 // イベント
 // ============================================================
-sendBtn.addEventListener('click', () => {
-  const t = inputEl.value.trim();
-  if (!t || sendBtn.disabled) return;
-  inputEl.value = '';
-  inputEl.style.height = 'auto';
-  runConversation(t);
-});
+sendBtn.addEventListener('click', defaultSend);
 
 inputEl.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -475,11 +474,53 @@ inputEl.addEventListener('input', () => {
 });
 
 // ============================================================
-// 初期メッセージ
+// ユーザー名管理
+// ============================================================
+function getUserName() {
+  return localStorage.getItem('yakusoku_username') || 'guest';
+}
+
+function setUserName(name) {
+  localStorage.setItem('yakusoku_username', name);
+}
+
+// ============================================================
+// 初期化
 // ============================================================
 (function init() {
-  addMsg('arc', 'こんにちは、くまさん！今日はどんなことを話しましょうか？');
+  const savedName = localStorage.getItem('yakusoku_username');
+  if (savedName) {
+    addMsg('arc', 'おかえり、' + savedName + 'さん！今日はどんなことを話しましょうか？');
+  } else {
+    showNameInput();
+  }
 })();
+
+function showNameInput() {
+  // 入力エリアを一時的に名前入力UIに差し替え
+  inputEl.placeholder = 'あなたのお名前を入力してください...';
+  sendBtn.onclick = function() {
+    const name = inputEl.value.trim();
+    if (!name) return;
+    setUserName(name);
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    inputEl.placeholder = '3賢者に相談する...';
+    // 送信ボタンを元に戻す
+    sendBtn.onclick = null;
+    sendBtn.addEventListener('click', defaultSend);
+    addMsg('arc', 'よろしく、' + name + 'さん！何でも話しかけてね。');
+  };
+  addMsg('arc', 'はじめまして！あなたのお名前を教えてください。');
+}
+
+function defaultSend() {
+  const t = inputEl.value.trim();
+  if (!t || sendBtn.disabled) return;
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+  runConversation(t);
+}
 </script>
 </body>
 </html>
