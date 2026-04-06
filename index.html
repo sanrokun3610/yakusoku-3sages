@@ -98,17 +98,24 @@
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
   .avatar {
-    width: 34px; height: 34px;
+    width: 44px; height: 44px;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 10px; font-weight: 600;
     flex-shrink: 0;
     letter-spacing: -0.3px;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
   }
-  .avatar.ray { background: var(--ray-bg); color: var(--ray-text); }
-  .avatar.arc { background: var(--arc-bg); color: var(--arc-text); }
-  .avatar.shade { background: var(--shade-bg); color: var(--shade-text); }
-  .avatar.user { background: #e0ddd6; color: #555; }
+  .avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  .avatar.ray { background: var(--ray-bg); color: var(--ray-text); border-color: var(--ray-border); }
+  .avatar.arc { background: var(--arc-bg); color: var(--arc-text); border-color: var(--arc-border); }
+  .avatar.shade { background: var(--shade-bg); color: var(--shade-text); border-color: var(--shade-border); }
+  .avatar.user { background: #e0ddd6; color: #555; border-color: #ccc; }
 
   .bubble-wrap {
     display: flex; flex-direction: column; gap: 3px;
@@ -270,6 +277,12 @@ function showError(msg) {
 }
 function hideError() { errorBanner.style.display = 'none'; }
 
+const IMAGES = {
+  ray: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Ray.png',
+  arc: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Arc.png',
+  shade: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Shade.png',
+};
+
 function addMsg(char, text) {
   const isUser = char === 'user';
   const row = document.createElement('div');
@@ -277,7 +290,15 @@ function addMsg(char, text) {
 
   const av = document.createElement('div');
   av.className = 'avatar ' + char;
-  av.textContent = isUser ? 'くま' : (AVATARS[char] || char);
+
+  if (!isUser && IMAGES[char]) {
+    const img = document.createElement('img');
+    img.src = IMAGES[char];
+    img.alt = char;
+    av.appendChild(img);
+  } else {
+    av.textContent = isUser ? 'くま' : (AVATARS[char] || char);
+  }
 
   const wrap = document.createElement('div');
   wrap.className = 'bubble-wrap';
