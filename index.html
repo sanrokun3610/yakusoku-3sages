@@ -352,25 +352,19 @@ function updateBudget(budget) {
 }
 
 // ============================================================
-// API 呼び出し（JSONP GET方式）
-// historyは直近2ターンのみ送信してURL長を抑制
+// API 呼び出し（JSONP GET方式 v2）
+// 会話履歴はGAS側のスプレッドシートで管理
+// ブラウザからはユーザーの発言だけ送る → URL短い
 // ============================================================
-function callAPI(messages) {
+function callAPI(userMessage) {
   return new Promise((resolve, reject) => {
     const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
     const scriptId = 'jsonp_' + callbackName;
 
-    // 直近2ターンのみ送信（URL長対策）
-    const trimmed = messages.slice(-4);
-
-    const payload = encodeURIComponent(JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 800,
-      system: SYSTEM,
-      messages: trimmed,
-    }));
-
-    const url = GAS_URL + '?callback=' + callbackName + '&payload=' + payload;
+    const url = GAS_URL
+      + '?callback=' + callbackName
+      + '&action=chat'
+      + '&message=' + encodeURIComponent(userMessage);
 
     const cleanup = () => {
       delete window[callbackName];
@@ -387,9 +381,8 @@ function callAPI(messages) {
       cleanup();
       if (data.error === 'BUDGET_EXCEEDED') return reject(new Error(data.message));
       if (data.error) return reject(new Error(data.message || data.error));
-      if (data._budget) updateBudget(data._budget);
-      const raw = data.content?.map(i => i.text || '').join('') || '';
-      resolve(raw);
+      if (data.budget) updateBudget(data.budget);
+      resolve(data.reply || '');
     };
 
     const script = document.createElement('script');
@@ -400,6 +393,23 @@ function callAPI(messages) {
       cleanup();
       reject(new Error('通信エラーが発生しました'));
     };
+    document.body.appendChild(script);
+  });
+}
+
+function resetHistory() {
+  return new Promise((resolve) => {
+    const callbackName = 'cb_reset_' + Date.now();
+    const scriptId = 'jsonp_' + callbackName;
+    const url = GAS_URL + '?callback=' + callbackName + '&action=reset';
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      document.getElementById(scriptId)?.remove();
+      resolve();
+    };
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = url;
     document.body.appendChild(script);
   });
 }
@@ -421,23 +431,15 @@ async function runConversation(userText) {
   sendBtn.disabled = true;
 
   addMsg('user', userText);
-  const newMessages = [...history, { role: 'user', content: userText }];
-
   addTyping('typing');
 
   try {
-    const raw = await callAPI(newMessages);
+    // v2: ユーザーの発言だけ送る。履歴はGAS側で管理
+    const raw = await callAPI(userText);
     removeTyping('typing');
 
     const replies = parseReplies(raw);
     replies.forEach(r => addMsg(r.char, r.message));
-
-    // historyにはJSON全体ではなく圧縮テキストを保存（URL長対策）
-    const compressed = replies.map(r => r.char + ':' + r.message).join(' / ');
-    history = [...newMessages, { role: 'assistant', content: compressed }];
-
-    // 履歴を直近4ターンに制限
-    if (history.length > 8) history = history.slice(history.length - 8);
 
   } catch (err) {
     removeTyping('typing');
