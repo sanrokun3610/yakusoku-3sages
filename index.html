@@ -233,7 +233,7 @@
 // ============================================================
 // 設定
 // ============================================================
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwz9QAgg6E0ZmgAR4echwbbPKvL5LoNg5lAqJdfjv-pIWY6ADJzDGy-ALcMZVlsfMHs/exec'; // ← GASデプロイ後にここを書き換える
+const GAS_URL = 'YOUR_GAS_WEB_APP_URL'; // ← GASデプロイ後にここを書き換える
 
 const SYSTEM = `あなたは薬速3賢者のRay・Arc・Shadeを同時に演じます。
 くまさん（薬剤師・医療ITコンサルタント）からの相談に、3人全員がそれぞれの視点で発言する「3人会議」形式で返答してください。
@@ -331,34 +331,45 @@ function updateBudget(budget) {
 }
 
 // ============================================================
-// API 呼び出し
+// API 呼び出し（JSONP方式 - GASのCORS制約を回避）
 // ============================================================
-async function callAPI(messages) {
-  const res = await fetch(GAS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+function callAPI(messages) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'cb_' + Date.now();
+    const payload = encodeURIComponent(JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
       system: SYSTEM,
       messages,
-    }),
+    }));
+
+    const url = GAS_URL + '?callback=' + callbackName + '&payload=' + payload;
+
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      document.getElementById('jsonp-script')?.remove();
+
+      if (data.error === 'BUDGET_EXCEEDED') {
+        return reject(new Error(data.message));
+      }
+      if (data.error) {
+        return reject(new Error(data.message || data.error));
+      }
+      if (data._budget) updateBudget(data._budget);
+
+      const raw = data.content?.map(i => i.text || '').join('') || '';
+      resolve(raw);
+    };
+
+    const script = document.createElement('script');
+    script.id = 'jsonp-script';
+    script.src = url;
+    script.onerror = () => {
+      delete window[callbackName];
+      reject(new Error('通信エラーが発生しました'));
+    };
+    document.body.appendChild(script);
   });
-
-  const data = await res.json();
-
-  if (data.error === 'BUDGET_EXCEEDED') {
-    throw new Error(data.message);
-  }
-  if (data.error) {
-    throw new Error(data.message || data.error);
-  }
-
-  // 予算表示更新
-  if (data._budget) updateBudget(data._budget);
-
-  const raw = data.content?.map(i => i.text || '').join('') || '';
-  return raw;
 }
 
 function parseReplies(raw) {
