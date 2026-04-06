@@ -352,27 +352,29 @@ function updateBudget(budget) {
 }
 
 // ============================================================
-// API 呼び出し（form POST + JSONP コールバック方式）
-// GASのURL長制限を回避するためPOSTフォームで送信
+// API 呼び出し（JSONP GET方式）
+// historyは直近2ターンのみ送信してURL長を抑制
 // ============================================================
 function callAPI(messages) {
   return new Promise((resolve, reject) => {
     const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const iframeId = 'iframe_' + callbackName;
-    const formId = 'form_' + callbackName;
+    const scriptId = 'jsonp_' + callbackName;
 
-    const bodyData = JSON.stringify({
+    // 直近2ターンのみ送信（URL長対策）
+    const trimmed = messages.slice(-4);
+
+    const payload = encodeURIComponent(JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
+      max_tokens: 800,
       system: SYSTEM,
-      messages,
-      callback: callbackName,
-    });
+      messages: trimmed,
+    }));
+
+    const url = GAS_URL + '?callback=' + callbackName + '&payload=' + payload;
 
     const cleanup = () => {
       delete window[callbackName];
-      document.getElementById(iframeId)?.remove();
-      document.getElementById(formId)?.remove();
+      document.getElementById(scriptId)?.remove();
     };
 
     const timer = setTimeout(() => {
@@ -390,29 +392,15 @@ function callAPI(messages) {
       resolve(raw);
     };
 
-    // 非表示iframe作成
-    const iframe = document.createElement('iframe');
-    iframe.id = iframeId;
-    iframe.name = iframeId;
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    // POSTフォーム作成
-    const form = document.createElement('form');
-    form.id = formId;
-    form.method = 'POST';
-    form.action = GAS_URL;
-    form.target = iframeId;
-    form.style.display = 'none';
-
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'payload';
-    input.value = bodyData;
-    form.appendChild(input);
-
-    document.body.appendChild(form);
-    form.submit();
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = url;
+    script.onerror = () => {
+      clearTimeout(timer);
+      cleanup();
+      reject(new Error('通信エラーが発生しました'));
+    };
+    document.body.appendChild(script);
   });
 }
 
