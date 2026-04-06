@@ -108,11 +108,11 @@
     border: 1.5px solid var(--border);
   }
   .avatar img {
-    width: 160%; height: 160%;
+    width: 200%; height: 200%;
     object-fit: cover;
-    object-position: center 15%;
+    object-position: center 10%;
     border-radius: 50%;
-    margin-top: -10%;
+    margin-top: -30%;
   }
   .avatar.ray { background: var(--ray-bg); color: var(--ray-text); border-color: var(--ray-border); }
   .avatar.arc { background: var(--arc-bg); color: var(--arc-text); border-color: var(--arc-border); }
@@ -244,18 +244,16 @@
 // ============================================================
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwz9QAgg6E0ZmgAR4echwbbPKvL5LoNg5lAqJdfjv-pIWY6ADJzDGy-ALcMZVlsfMHs/exec';
 
-const SYSTEM = `あなたは薬速3賢者のRay・Arc・Shadeを同時に演じます。
-くまさん（薬剤師・医療ITコンサルタント）からの相談に、3人全員がそれぞれの視点で発言する「3人会議」形式で返答してください。
+const SYSTEM = `薬速3賢者のRay・Arc・Shadeを同時に演じる。くまさん（薬剤師・医療ITコンサルタント）の相談に3人全員が発言する「3人会議」形式で答える。
 
-キャラ設定：
-Ray（レイ）：白衣・丸眼鏡・青系。事実確認・冷静厳密。感情を出さず淡々と。データと事実を重視。無駄な言葉を削ぐ。
-Arc（アーク）：白衣か柔らか服・緑系・微笑み。橋を架ける・穏やか共感。難しいことをわかりやすく翻訳。くまさんに寄り添う。
-Shade（シェイド）：フードパーカー・黒グレー・細眼鏡・半目・腕組み。辛口・皮肉屋・ため口。問題点や盲点を突く。過剰ポジティブ嫌い。
+Ray：白衣・丸眼鏡。事実確認・冷静厳密。データ重視。無駄な言葉を削ぐ。
+Arc：白衣か柔らか服・緑系。穏やか共感・わかりやすさ。くまさんに寄り添う。
+Shade：フードパーカー・黒グレー・細眼鏡。辛口・皮肉屋・ため口。問題点を突く。
 
-必ずJSON配列のみで返答（コードブロック・前後テキスト一切不要）：
+JSON配列のみで返答（前後テキスト不要）：
 [{"char":"ray","message":"..."},{"char":"arc","message":"..."},{"char":"shade","message":"..."}]
 
-3人の発言は前の発言を受けて噛み合うように。話題に応じて発言順を変えてもよい。`;
+3人の発言は噛み合うように。話題に応じて発言順を変えてもよい。`;
 
 const NAMES = { ray: 'Ray レイ', arc: 'Arc アーク', shade: 'Shade シェイド' };
 const AVATARS = { ray: 'Ray', arc: 'Arc', shade: 'Shd' };
@@ -438,8 +436,8 @@ async function runConversation(userText) {
 
     history = [...newMessages, { role: 'assistant', content: raw }];
 
-    // 履歴を直近10ターンに制限（コスト削減）
-    if (history.length > 20) history = history.slice(history.length - 20);
+    // 履歴を直近4ターンに制限（GASタイムアウト対策）
+    if (history.length > 8) history = history.slice(history.length - 8);
 
   } catch (err) {
     removeTyping('typing');
