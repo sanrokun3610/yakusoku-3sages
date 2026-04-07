@@ -144,6 +144,55 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 .char-star { font-size: 13px; color: #f5a623; margin-top: 4px; }
 .char-star-count { font-size: 10px; color: var(--text-muted); margin-left: 2px; }
 
+/* === Score Summary Bar (intro閉じても見える) === */
+#score-summary {
+  flex-shrink: 0;
+  background: #fff;
+  border-bottom: 1px solid var(--border-light);
+  padding: 6px 12px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+#score-summary.visible { display: flex; }
+.score-summary-char {
+  display: flex; align-items: center; gap: 4px;
+}
+.score-summary-char img {
+  width: 20px; height: 20px; border-radius: 50%; object-fit: cover; object-position: center top;
+}
+.score-summary-star { color: #f5a623; font-weight: 600; }
+.score-summary-votes { font-size: 10px; color: #aaa; }
+
+/* === User Switch Banner === */
+#user-banner {
+  flex-shrink: 0;
+  background: linear-gradient(90deg, var(--accent), #05b34a);
+  color: white;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+#user-banner-name { font-size: 15px; }
+#user-switch-btn {
+  background: rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.5);
+  color: white;
+  border-radius: 14px;
+  padding: 2px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
 /* === Messages === */
 #messages {
   flex: 1; overflow-y: auto; overflow-x: hidden;
@@ -240,6 +289,20 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
     </div>
     <span id="ver-display">2026-04-07</span>
     <span id="budget-display"></span>
+  </div>
+
+  <!-- ユーザーバナー（誰がログイン中か明示） -->
+  <div id="user-banner" style="display:none">
+    <span>🟢</span>
+    <span id="user-banner-name"></span>
+    <button id="user-switch-btn">切り替え</button>
+  </div>
+
+  <!-- スコアサマリー（intro閉じても表示） -->
+  <div id="score-summary">
+    <div class="score-summary-char" id="summary-ray"></div>
+    <div class="score-summary-char" id="summary-arc"></div>
+    <div class="score-summary-char" id="summary-shade"></div>
   </div>
 
   <!-- 天気予報バー -->
@@ -350,13 +413,27 @@ let currentMode = 'chat';
 let isSending = false; // (E) 二重送信防止フラグ
 
 // === User helpers ===
-function getUserName() { return localStorage.getItem('yakusoku_username') || ''; }
-function setUserName(n) { localStorage.setItem('yakusoku_username', n); }
-function clearUserName() { localStorage.removeItem('yakusoku_username'); }
+// セッション中のユーザー名を保持（タブ単位で固定、他タブの影響を受けない）
+let _sessionUser = null;
+function getUserName() { return _sessionUser || localStorage.getItem('yakusoku_username') || ''; }
+function setUserName(n) { _sessionUser = n; localStorage.setItem('yakusoku_username', n); }
+function clearUserName() { _sessionUser = null; localStorage.removeItem('yakusoku_username'); }
 function getSuffix() { return localStorage.getItem('yakusoku_suffix') || 'さん'; }
 function setSuffix(s) { localStorage.setItem('yakusoku_suffix', s); }
 function getDisplayName() { return getUserName() + getSuffix(); }
-function updateLoginInfo() { loginInfo.textContent = getUserName() || ''; }
+function updateLoginInfo() {
+  const name = getUserName();
+  loginInfo.textContent = name || '';
+  // ユーザーバナー更新
+  const banner = document.getElementById('user-banner');
+  const bannerName = document.getElementById('user-banner-name');
+  if (name) {
+    bannerName.textContent = name + ' としてログイン中';
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+}
 
 // === Error Banner (D) 自動非表示 + 閉じるボタン ===
 let errorTimer = null;
@@ -586,34 +663,74 @@ function sendScore(char, type, likeSpan, dislikeSpan) {
 
 // === (K) Intro スコア表示をDOM APIで安全に ===
 function updateIntroScores(scores) {
+  let hasAnyScore = false;
+
   CHARS.forEach(char => {
+    // --- Introパネル内のスコア ---
     const el = document.getElementById('star-' + char);
-    if (!el) return;
-    const s = scores[char];
-    if (!s || s.total === 0) {
-      el.textContent = '';
-      const empty = document.createElement('span');
-      empty.style.cssText = 'color:#ccc;font-size:11px';
-      empty.textContent = '評価なし';
-      el.appendChild(empty);
-      return;
+    if (el) {
+      const s = scores[char];
+      if (!s || s.total === 0) {
+        el.textContent = '';
+        const empty = document.createElement('span');
+        empty.style.cssText = 'color:#ccc;font-size:11px';
+        empty.textContent = '評価なし';
+        el.appendChild(empty);
+      } else {
+        const full = Math.floor(s.star);
+        const half = (s.star - full) >= 0.5 ? 1 : 0;
+        const emp = 5 - full - half;
+        el.textContent = '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(emp);
+        const countSpan = document.createElement('span');
+        countSpan.className = 'char-star-count';
+        countSpan.textContent = '(' + s.star.toFixed(1) + ')';
+        el.appendChild(countSpan);
+        const detailDiv = document.createElement('div');
+        detailDiv.style.cssText = 'font-size:10px;color:#888;margin-top:2px';
+        detailDiv.textContent = '👍' + s.like + ' 👎' + s.dislike;
+        el.appendChild(detailDiv);
+      }
     }
-    const full = Math.floor(s.star);
-    const half = (s.star - full) >= 0.5 ? 1 : 0;
-    const empty = 5 - full - half;
 
-    el.textContent = '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
-
-    const countSpan = document.createElement('span');
-    countSpan.className = 'char-star-count';
-    countSpan.textContent = '(' + s.star.toFixed(1) + ')';
-    el.appendChild(countSpan);
-
-    const detailDiv = document.createElement('div');
-    detailDiv.style.cssText = 'font-size:10px;color:#888;margin-top:2px';
-    detailDiv.textContent = '👍' + s.like + ' 👎' + s.dislike;
-    el.appendChild(detailDiv);
+    // --- スコアサマリーバー（intro閉じても見える） ---
+    const summaryEl = document.getElementById('summary-' + char);
+    if (summaryEl) {
+      summaryEl.textContent = '';
+      const s = scores[char];
+      const img = document.createElement('img');
+      img.src = IMAGES[char];
+      img.alt = char;
+      summaryEl.appendChild(img);
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = char.charAt(0).toUpperCase() + char.slice(1);
+      summaryEl.appendChild(nameSpan);
+      if (s && s.total > 0) {
+        hasAnyScore = true;
+        const starSpan = document.createElement('span');
+        starSpan.className = 'score-summary-star';
+        starSpan.textContent = '★' + s.star.toFixed(1);
+        summaryEl.appendChild(starSpan);
+        const voteSpan = document.createElement('span');
+        voteSpan.className = 'score-summary-votes';
+        voteSpan.textContent = '👍' + s.like + ' 👎' + s.dislike;
+        summaryEl.appendChild(voteSpan);
+      } else {
+        const noScore = document.createElement('span');
+        noScore.className = 'score-summary-votes';
+        noScore.textContent = '---';
+        summaryEl.appendChild(noScore);
+      }
+    }
   });
+
+  // introが閉じている場合のみサマリーバーを表示
+  const introHidden = document.getElementById('intro').style.display === 'none';
+  const summaryBar = document.getElementById('score-summary');
+  if (introHidden) {
+    summaryBar.classList.add('visible');
+  } else {
+    summaryBar.classList.remove('visible');
+  }
 }
 
 // === 天気予報 (JMA API) ===
@@ -968,18 +1085,27 @@ inputEl.addEventListener('input', () => {
   inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + 'px';
 });
 
-document.getElementById('login-btn').addEventListener('click', () => {
-  if (confirm('別のアカウントでログインしますか？')) {
-    clearUserName();
-    msgsEl.textContent = '';
-    switchToNameInput();
-  }
-});
+function doUserSwitch() {
+  const newName = prompt('名前を入力してください（空欄でキャンセル）');
+  if (newName === null || newName.trim() === '') return;
+  clearUserName();
+  msgsEl.textContent = '';
+  setUserName(newName.trim());
+  inputEl.placeholder = 'メッセージを入力...';
+  currentMode = 'chat';
+  updateLoginInfo();
+  addMsg('arc', 'おかえり、' + getDisplayName() + '！何でも話しかけてね。');
+}
+
+document.getElementById('login-btn').addEventListener('click', doUserSwitch);
+document.getElementById('user-switch-btn').addEventListener('click', doUserSwitch);
 
 // (C) Introパネルの状態永続化
 document.getElementById('intro-close').addEventListener('click', () => {
   document.getElementById('intro').style.display = 'none';
   localStorage.setItem('sanmin_intro_closed', '1');
+  // introが閉じたらスコアサマリーを表示
+  document.getElementById('score-summary').classList.add('visible');
 });
 
 // === (L) PWA マニフェスト（インラインBlob生成） ===
@@ -1021,19 +1147,27 @@ document.getElementById('intro-close').addEventListener('click', () => {
   }
 
   if (urlUser) {
+    // URLパラメータ優先：セッションにも固定
     setUserName(urlUser);
     if (urlSuffix) setSuffix(urlSuffix);
     currentMode = 'chat';
     updateLoginInfo();
   } else {
-    const name = getUserName();
-    if (name) { currentMode = 'chat'; updateLoginInfo(); }
-    else { switchToNameInput(); }
+    // localStorageから復元 → セッション変数にも固定
+    const name = localStorage.getItem('yakusoku_username') || '';
+    if (name) {
+      _sessionUser = name; // セッションに固定（他タブのlocalStorage変更の影響を受けない）
+      currentMode = 'chat';
+      updateLoginInfo();
+    } else {
+      switchToNameInput();
+    }
   }
 
   // (C) Introパネル状態復元
   if (localStorage.getItem('sanmin_intro_closed') === '1') {
     document.getElementById('intro').style.display = 'none';
+    document.getElementById('score-summary').classList.add('visible');
   }
 
   loadScores();
