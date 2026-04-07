@@ -12,6 +12,93 @@
   --text: #1a1a1a;
   --text-muted: #888;
 }
+
+#intro {
+  flex-shrink: 0;
+  background: #fff;
+  border-bottom: 1px solid #e8e4dc;
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+#intro-header {
+  text-align: center;
+  margin-bottom: 14px;
+}
+#intro-header h2 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: 0.05em;
+}
+#intro-header p {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+.char-cards {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.char-card {
+  flex: 1;
+  border-radius: 12px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.char-card.ray { background: #e8f1fb; }
+.char-card.arc { background: #eaf3de; }
+.char-card.shade { background: #f1f0ec; }
+.char-card img {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  background: #ddd;
+}
+.char-card-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.char-card-role {
+  font-size: 10px;
+  color: #555;
+  text-align: center;
+  line-height: 1.4;
+}
+.char-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: center;
+}
+.char-tag {
+  font-size: 9px;
+  padding: 2px 5px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.ray .char-tag { background: #c8dff8; color: #0c447c; }
+.arc .char-tag { background: #c8e8b4; color: #27500a; }
+.shade .char-tag { background: #dddbd5; color: #444; }
+#intro-close {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #06c755;
+  color: white;
+  border: none;
+  border-radius: 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+
 html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: var(--line-bg); }
 #app { display: flex; flex-direction: column; width: 100vw; height: 100dvh; overflow: hidden; }
 #header {
@@ -106,8 +193,47 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 12:42</span>
+    <span id="ver-display">2026-04-07 12:46</span>
     <span id="budget-display"></span>
+  </div>
+  <div id="intro">
+    <div id="intro-header">
+      <h2>さんみん</h2>
+      <p>3人のAIが、あなたの話を一緒に考えます</p>
+    </div>
+    <div class="char-cards">
+      <div class="char-card ray">
+        <img src="https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Ray.png" alt="Ray">
+        <div class="char-card-name">Ray レイ</div>
+        <div class="char-card-role">事実を冷静に整理する<br>分析担当</div>
+        <div class="char-card-tags">
+          <span class="char-tag">論理的</span>
+          <span class="char-tag">データ重視</span>
+          <span class="char-tag">端的</span>
+        </div>
+      </div>
+      <div class="char-card arc">
+        <img src="https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Arc.png" alt="Arc">
+        <div class="char-card-name">Arc アーク</div>
+        <div class="char-card-role">気持ちに寄り添う<br>共感担当</div>
+        <div class="char-card-tags">
+          <span class="char-tag">穏やか</span>
+          <span class="char-tag">共感</span>
+          <span class="char-tag">わかりやすい</span>
+        </div>
+      </div>
+      <div class="char-card shade">
+        <img src="https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Shade.png" alt="Shade">
+        <div class="char-card-name">Shade シェイド</div>
+        <div class="char-card-role">問題点を鋭く突く<br>辛口担当</div>
+        <div class="char-card-tags">
+          <span class="char-tag">皮肉屋</span>
+          <span class="char-tag">本質をつく</span>
+          <span class="char-tag">ため口</span>
+        </div>
+      </div>
+    </div>
+    <button id="intro-close" onclick="document.getElementById('intro').style.display='none'">3人と話してみる →</button>
   </div>
   <div id="messages"></div>
   <div id="error-banner"></div>
