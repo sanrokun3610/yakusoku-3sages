@@ -2,218 +2,96 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>薬速3賢者</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #f5f4f0;
-    --surface: #ffffff;
-    --border: rgba(0,0,0,0.1);
-    --text: #1a1a1a;
-    --text-muted: #666;
-    --ray-bg: #e8f1fb; --ray-text: #0c447c; --ray-border: #b5d4f4;
-    --arc-bg: #eaf3de; --arc-text: #27500a; --arc-border: #c0dd97;
-    --shade-bg: #f1f0ec; --shade-text: #3a3a38; --shade-border: #d3d1c7;
-  }
-
-  html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
-    background: var(--bg);
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    height: 100dvh;
-  }
-
-  #app {
-    width: 100%;
-    max-width: 680px;
-    min-width: 0;
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    box-shadow: 0 0 40px rgba(0,0,0,0.08);
-    overflow: hidden;
-  }
-
-  /* ヘッダー */
-  #header {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-  }
-  #login-btn {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 6px;
-    transition: background 0.15s;
-  }
-  #login-btn:hover { background: var(--bg); }
-  #login-btn h1 {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-  }
-  #login-info {
-    font-size: 10px;
-    color: var(--text-muted);
-  }
-  .badge {
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 500;
-    border: 1px solid transparent;
-  }
-  .badge.ray { background: var(--ray-bg); color: var(--ray-text); border-color: var(--ray-border); }
-  .badge.arc { background: var(--arc-bg); color: var(--arc-text); border-color: var(--arc-border); }
-  .badge.shade { background: var(--shade-bg); color: var(--shade-text); border-color: var(--shade-border); }
-  #ver-display {
-    font-size: 9px;
-    color: #bbb;
-    margin-left: 2px;
-  }
-  #budget-display {
-    margin-left: auto;
-    font-size: 11px;
-    color: var(--text-muted);
-    white-space: nowrap;
-  }
-
-  /* メッセージエリア */
-  #messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 14px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .msg-row { display: flex; gap: 8px; align-items: flex-start; animation: fadeIn 0.2s ease; }
-  .msg-row.user { flex-direction: row-reverse; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-  .avatar {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 600;
-    flex-shrink: 0;
-    overflow: hidden;
-    border: 1.5px solid var(--border);
-  }
-  .avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
-  .avatar.ray { background: var(--ray-bg); color: var(--ray-text); border-color: var(--ray-border); }
-  .avatar.arc { background: var(--arc-bg); color: var(--arc-text); border-color: var(--arc-border); }
-  .avatar.shade { background: var(--shade-bg); color: var(--shade-text); border-color: var(--shade-border); }
-  .avatar.user { background: #e0ddd6; color: #555; border-color: #ccc; font-size: 11px; }
-
-  .bubble-wrap { display: flex; flex-direction: column; gap: 2px; max-width: min(78%, 480px); }
-  .char-name { font-size: 10px; color: var(--text-muted); padding: 0 4px; }
-  .msg-row.user .char-name { text-align: right; }
-
-  .bubble {
-    padding: 8px 12px;
-    border-radius: 16px;
-    font-size: 14px;
-    line-height: 1.65;
-    border: 1px solid var(--border);
-    background: #f0ede8;
-    color: var(--text);
-    word-break: break-word;
-    white-space: pre-wrap;
-  }
-  .bubble.ray { background: var(--ray-bg); border-color: var(--ray-border); color: var(--ray-text); border-radius: 4px 16px 16px 16px; }
-  .bubble.arc { background: var(--arc-bg); border-color: var(--arc-border); color: var(--arc-text); border-radius: 4px 16px 16px 16px; }
-  .bubble.shade { background: var(--shade-bg); border-color: var(--shade-border); color: var(--shade-text); border-radius: 4px 16px 16px 16px; }
-  .bubble.user { border-radius: 16px 4px 16px 16px; }
-
-  .typing-wrap { display: flex; gap: 8px; align-items: center; }
-  .typing-bubble {
-    display: flex; gap: 5px; padding: 10px 14px;
-    background: #f0ede8; border-radius: 4px 16px 16px 16px;
-    border: 1px solid var(--border);
-  }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: #aaa; animation: bounce 1.2s infinite; }
-  .dot:nth-child(2) { animation-delay: .15s; }
-  .dot:nth-child(3) { animation-delay: .3s; }
-  @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
-
-  #error-banner {
-    display: none;
-    margin: 0 14px 6px;
-    padding: 7px 11px;
-    background: #fce8e8;
-    border: 1px solid #f5c0c0;
-    border-radius: 8px;
-    font-size: 12px;
-    color: #a32d2d;
-    flex-shrink: 0;
-  }
-
-  /* 入力エリア */
-  #input-area {
-    padding: 8px 12px 12px;
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-    flex-shrink: 0;
-    background: var(--surface);
-  }
-  #input-box {
-    flex: 1; resize: none;
-    border: 1px solid #ddd;
-    border-radius: 18px;
-    padding: 8px 13px;
-    font-size: 14px;
-    font-family: inherit;
-    background: #faf9f7;
-    color: var(--text);
-    line-height: 1.5;
-    min-height: 38px; max-height: 120px;
-    overflow-y: auto;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  #input-box:focus { border-color: #378ADD; }
-  #send-btn {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: #378ADD;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: background 0.15s, transform 0.1s;
-  }
-  #send-btn:hover { background: #185FA5; }
-  #send-btn:active { transform: scale(0.94); }
-  #send-btn:disabled { background: #ccc; cursor: not-allowed; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --line-bg: #efebe1;
+  --line-header: #ffffff;
+  --text: #1a1a1a;
+  --text-muted: #888;
+}
+html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: var(--line-bg); }
+#app { display: flex; flex-direction: column; width: 100vw; height: 100dvh; overflow: hidden; }
+#header {
+  flex-shrink: 0;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 12px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+#login-btn { display: flex; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; flex-shrink: 0; }
+#login-btn h1 { font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; }
+#login-info { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.badges { display: flex; gap: 4px; flex-shrink: 0; }
+.badge { padding: 2px 7px; border-radius: 12px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.badge.ray { background: #e8f1fb; color: #0c447c; }
+.badge.arc { background: #eaf3de; color: #27500a; }
+.badge.shade { background: #f1f0ec; color: #444; }
+#ver-display { font-size: 9px; color: #ccc; white-space: nowrap; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; }
+#budget-display { margin-left: auto; font-size: 11px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.msg-row { display: flex; gap: 6px; align-items: flex-end; width: 100%; }
+.msg-row.user { flex-direction: row-reverse; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #ddd; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.avatar.user { background: #06c755; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: white; }
+.bubble-col { display: flex; flex-direction: column; gap: 2px; max-width: calc(100% - 50px); min-width: 0; }
+.char-name { font-size: 10px; color: var(--text-muted); padding: 0 4px; }
+.msg-row.user .char-name { text-align: right; }
+.bubble { padding: 8px 12px; font-size: 14px; line-height: 1.6; word-break: break-word; white-space: pre-wrap; max-width: 100%; }
+.bubble.ray, .bubble.arc, .bubble.shade {
+  background: #fff;
+  color: #1a1a1a;
+  border-radius: 4px 18px 18px 18px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.bubble.user { background: #06c755; color: white; border-radius: 18px 4px 18px 18px; }
+.typing-row { display: flex; gap: 6px; align-items: flex-end; }
+.typing-bubble { background: white; border-radius: 4px 18px 18px 18px; padding: 10px 14px; display: flex; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #aaa; animation: bounce 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: .15s; }
+.dot:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+#error-banner { display: none; flex-shrink: 0; margin: 4px 10px; padding: 7px 11px; background: #fce8e8; border-radius: 8px; font-size: 12px; color: #a32d2d; }
+#input-area {
+  flex-shrink: 0;
+  background: #f5f5f5;
+  border-top: 1px solid #ddd;
+  padding: 8px 10px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+}
+#input-box {
+  flex: 1; resize: none;
+  border: 1px solid #ddd; border-radius: 20px;
+  padding: 8px 14px; font-size: 15px; font-family: inherit;
+  background: white; color: var(--text); line-height: 1.5;
+  min-height: 38px; max-height: 110px; overflow-y: auto; outline: none;
+}
+#input-box:focus { border-color: #06c755; }
+#send-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: #06c755; color: white; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+#send-btn:disabled { background: #ccc; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -223,61 +101,48 @@
       <h1>薬速3賢者</h1>
       <span id="login-info"></span>
     </button>
-    <span class="badge ray">Ray</span>
-    <span class="badge arc">Arc</span>
-    <span class="badge shade">Shade</span>
-    <span id="ver-display">2026-04-07 08:31</span>
+    <div class="badges">
+      <span class="badge ray">Ray</span>
+      <span class="badge arc">Arc</span>
+      <span class="badge shade">Shade</span>
+    </div>
+    <span id="ver-display">2026-04-07 09:09</span>
     <span id="budget-display"></span>
   </div>
-
   <div id="messages"></div>
   <div id="error-banner"></div>
-
   <div id="input-area">
-    <textarea id="input-box" placeholder="3賢者に相談する..." rows="1"></textarea>
-    <button id="send-btn" title="送信">↑</button>
+    <textarea id="input-box" placeholder="メッセージを入力..." rows="1"></textarea>
+    <button id="send-btn">↑</button>
   </div>
 </div>
-
 <script>
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwz9QAgg6E0ZmgAR4echwbbPKvL5LoNg5lAqJdfjv-pIWY6ADJzDGy-ALcMZVlsfMHs/exec';
-
 const NAMES = { ray: 'Ray レイ', arc: 'Arc アーク', shade: 'Shade シェイド' };
 const IMAGES = {
   ray: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Ray.png',
   arc: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Arc.png',
   shade: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Shade.png',
 };
-
 const msgsEl = document.getElementById('messages');
 const inputEl = document.getElementById('input-box');
 const sendBtn = document.getElementById('send-btn');
 const errorBanner = document.getElementById('error-banner');
 const budgetEl = document.getElementById('budget-display');
 const loginInfo = document.getElementById('login-info');
-
 let currentMode = 'chat';
 
-// ---- ユーザー名管理 ----
 function getUserName() { return localStorage.getItem('yakusoku_username') || ''; }
-function setUserName(name) { localStorage.setItem('yakusoku_username', name); }
+function setUserName(n) { localStorage.setItem('yakusoku_username', n); }
 function clearUserName() { localStorage.removeItem('yakusoku_username'); }
+function updateLoginInfo() { loginInfo.textContent = getUserName() || ''; }
 
-function updateLoginInfo() {
-  const name = getUserName();
-  loginInfo.textContent = name ? name + 'さん' : '';
-}
-
-// ---- ヘッダーのログインボタン ----
 document.getElementById('login-btn').addEventListener('click', () => {
   if (confirm('別のアカウントでログインしますか？')) {
-    clearUserName();
-    msgsEl.innerHTML = '';
-    switchToNameInput();
+    clearUserName(); msgsEl.innerHTML = ''; switchToNameInput();
   }
 });
 
-// ---- UI ヘルパー ----
 function showError(msg) { errorBanner.style.display = 'block'; errorBanner.textContent = msg; }
 function hideError() { errorBanner.style.display = 'none'; }
 
@@ -285,185 +150,118 @@ function addMsg(char, text) {
   const isUser = char === 'user';
   const row = document.createElement('div');
   row.className = 'msg-row' + (isUser ? ' user' : '');
-
   const av = document.createElement('div');
-  av.className = 'avatar ' + char;
-
+  av.className = 'avatar' + (isUser ? ' user' : '');
   if (!isUser && IMAGES[char]) {
-    const img = document.createElement('img');
-    img.src = IMAGES[char];
-    img.alt = char;
-    av.appendChild(img);
-  } else {
-    av.textContent = isUser ? (getUserName() ? getUserName().slice(0,2) : 'くま') : (char.slice(0,3));
+    const img = document.createElement('img'); img.src = IMAGES[char]; img.alt = char; av.appendChild(img);
+  } else if (isUser) {
+    av.textContent = (getUserName() || 'く').slice(0, 1);
   }
-
-  const wrap = document.createElement('div');
-  wrap.className = 'bubble-wrap';
-
-  const name = document.createElement('span');
-  name.className = 'char-name';
-  name.textContent = isUser ? (getUserName() + 'さん' || 'あなた') : (NAMES[char] || char);
-
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble ' + char;
+  const col = document.createElement('div'); col.className = 'bubble-col';
+  const nm = document.createElement('span'); nm.className = 'char-name';
+  nm.textContent = isUser ? (getUserName() || 'あなた') : (NAMES[char] || char);
+  const bubble = document.createElement('div'); bubble.className = 'bubble ' + char;
   bubble.textContent = text;
-
-  wrap.appendChild(name);
-  wrap.appendChild(bubble);
-  row.appendChild(av);
-  row.appendChild(wrap);
+  col.appendChild(nm); col.appendChild(bubble);
+  if (!isUser) { row.appendChild(av); row.appendChild(col); }
+  else { row.appendChild(col); row.appendChild(av); }
   msgsEl.appendChild(row);
   msgsEl.scrollTop = msgsEl.scrollHeight;
 }
 
 function addTyping(id) {
-  const wrap = document.createElement('div');
-  wrap.className = 'typing-wrap';
-  wrap.id = id;
-  const av = document.createElement('div');
-  av.className = 'avatar arc';
-  av.textContent = '...';
-  const tb = document.createElement('div');
-  tb.className = 'typing-bubble';
+  const row = document.createElement('div'); row.className = 'typing-row'; row.id = id;
+  const av = document.createElement('div'); av.className = 'avatar';
+  const tb = document.createElement('div'); tb.className = 'typing-bubble';
   for (let i = 0; i < 3; i++) { const d = document.createElement('div'); d.className = 'dot'; tb.appendChild(d); }
-  wrap.appendChild(av);
-  wrap.appendChild(tb);
-  msgsEl.appendChild(wrap);
+  row.appendChild(av); row.appendChild(tb); msgsEl.appendChild(row);
   msgsEl.scrollTop = msgsEl.scrollHeight;
 }
 function removeTyping(id) { document.getElementById(id)?.remove(); }
 
-function updateBudget(budget) {
-  if (!budget) return;
-  const jpy = budget.remainingJPY;
-  budgetEl.textContent = '残り¥' + jpy;
-  budgetEl.style.color = jpy < 100 ? '#a32d2d' : '#888';
+function updateBudget(b) {
+  if (!b) return;
+  budgetEl.textContent = '残り¥' + b.remainingJPY;
+  budgetEl.style.color = b.remainingJPY < 100 ? '#e00' : '#888';
 }
 
-// ---- API ----
 function callAPI(userMessage) {
   return new Promise((resolve, reject) => {
-    const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const scriptId = 'jsonp_' + callbackName;
-    const url = GAS_URL
-      + '?callback=' + callbackName
-      + '&action=chat'
-      + '&user=' + encodeURIComponent(getUserName() || 'anonymous')
-      + '&message=' + encodeURIComponent(userMessage);
-
-    const cleanup = () => { delete window[callbackName]; document.getElementById(scriptId)?.remove(); };
-    const timer = setTimeout(() => { cleanup(); reject(new Error('タイムアウトしました。もう一度試してください。')); }, 35000);
-
-    window[callbackName] = function(data) {
+    const cb = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const sid = 'jsonp_' + cb;
+    const url = GAS_URL + '?callback=' + cb + '&action=chat&user=' + encodeURIComponent(getUserName() || 'anonymous') + '&message=' + encodeURIComponent(userMessage);
+    const cleanup = () => { delete window[cb]; document.getElementById(sid)?.remove(); };
+    const timer = setTimeout(() => { cleanup(); reject(new Error('タイムアウトしました')); }, 35000);
+    window[cb] = function(data) {
       clearTimeout(timer); cleanup();
       if (data.error === 'BUDGET_EXCEEDED') return reject(new Error(data.message));
       if (data.error) return reject(new Error(data.message || data.error));
       if (data.budget) updateBudget(data.budget);
       resolve(data.reply || '');
     };
-
-    const script = document.createElement('script');
-    script.id = scriptId;
-    script.src = url;
-    script.onerror = () => { clearTimeout(timer); cleanup(); reject(new Error('通信エラーが発生しました')); };
-    document.body.appendChild(script);
+    const s = document.createElement('script'); s.id = sid; s.src = url;
+    s.onerror = () => { clearTimeout(timer); cleanup(); reject(new Error('通信エラーが発生しました')); };
+    document.body.appendChild(s);
   });
 }
 
 function parseReplies(raw) {
   try {
-    const match = raw.match(/\[[\s\S]*\]/);
-    if (match) {
-      const arr = JSON.parse(match[0]);
-      if (Array.isArray(arr) && arr.length > 0) return arr;
-    }
-  } catch (e) {}
+    const m = raw.match(/\[[\s\S]*\]/);
+    if (m) { const a = JSON.parse(m[0]); if (Array.isArray(a) && a.length > 0) return a; }
+  } catch(e) {}
   return [{ char: 'arc', message: raw }];
 }
 
-// ---- 会話処理 ----
 async function runConversation(userText) {
-  hideError();
-  sendBtn.disabled = true;
-  addMsg('user', userText);
-  addTyping('typing');
+  hideError(); sendBtn.disabled = true;
+  addMsg('user', userText); addTyping('typing');
   try {
     const raw = await callAPI(userText);
     removeTyping('typing');
-    const replies = parseReplies(raw);
-    replies.forEach(r => addMsg(r.char, r.message));
-  } catch (err) {
-    removeTyping('typing');
-    showError(err.message || 'エラーが発生しました。');
+    parseReplies(raw).forEach(r => addMsg(r.char, r.message));
+  } catch(err) {
+    removeTyping('typing'); showError(err.message || 'エラーが発生しました');
   }
-  sendBtn.disabled = false;
-  inputEl.focus();
+  sendBtn.disabled = false; inputEl.focus();
 }
 
-// ---- イベント ----
 sendBtn.addEventListener('click', handleSend);
-
 inputEl.addEventListener('keydown', e => {
-  // Enterキーは送信しない（Shift+Enterも含め改行のみ）
   if (e.key === 'Enter' && !e.isComposing && currentMode === 'name_input' && !e.shiftKey) {
-    e.preventDefault();
-    handleSend();
+    e.preventDefault(); handleSend();
   }
-  // チャットモードではEnterは改行のみ、送信はボタンのみ
 });
-
 inputEl.addEventListener('input', () => {
   inputEl.style.height = 'auto';
-  inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + 'px';
 });
 
-function handleSend() {
-  if (currentMode === 'name_input') {
-    submitName();
-  } else {
-    submitChat();
-  }
-}
+function handleSend() { currentMode === 'name_input' ? submitName() : submitChat(); }
 
 function submitName() {
-  const name = inputEl.value.trim();
-  if (!name) return;
-  setUserName(name);
-  inputEl.value = '';
-  inputEl.style.height = 'auto';
-  inputEl.placeholder = '3賢者に相談する...（送信は↑ボタン）';
-  currentMode = 'chat';
-  updateLoginInfo();
+  const name = inputEl.value.trim(); if (!name) return;
+  setUserName(name); inputEl.value = ''; inputEl.style.height = 'auto';
+  inputEl.placeholder = 'メッセージを入力...';
+  currentMode = 'chat'; updateLoginInfo();
   addMsg('arc', 'よろしく、' + name + 'さん！何でも話しかけてね。');
 }
 
 function submitChat() {
-  const t = inputEl.value.trim();
-  if (!t || sendBtn.disabled) return;
-  inputEl.value = '';
-  inputEl.style.height = 'auto';
-  runConversation(t);
+  const t = inputEl.value.trim(); if (!t || sendBtn.disabled) return;
+  inputEl.value = ''; inputEl.style.height = 'auto'; runConversation(t);
 }
 
 function switchToNameInput() {
-  inputEl.placeholder = 'あなたのお名前を入力してください...';
-  currentMode = 'name_input';
-  updateLoginInfo();
+  inputEl.placeholder = 'あなたのお名前を入力...';
+  currentMode = 'name_input'; updateLoginInfo();
   addMsg('arc', 'はじめまして！あなたのお名前を教えてください。');
 }
 
-// ---- 初期化 ----
 (function init() {
-  const savedName = getUserName();
-  if (savedName) {
-    currentMode = 'chat';
-    inputEl.placeholder = '3賢者に相談する...（送信は↑ボタン）';
-    updateLoginInfo();
-    addMsg('arc', 'おかえり、' + savedName + 'さん！今日はどんなことを話しましょうか？');
-  } else {
-    switchToNameInput();
-  }
+  const name = getUserName();
+  if (name) { currentMode = 'chat'; updateLoginInfo(); addMsg('arc', 'おかえり、' + name + 'さん！今日はどんなことを話しましょうか？'); }
+  else { switchToNameInput(); }
 })();
 </script>
 </body>
