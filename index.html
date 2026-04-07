@@ -656,11 +656,16 @@ async function loadWeather(areaCode) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
+    // 発表元から都道府県名を抽出（例: "甲府地方気象台" → "山梨"）
+    const office = data[0].publishingOffice || '';
+    const prefMatch = office.match(/^(.+?)地方気象台/) || office.match(/^(.+?)気象台/);
     const ts = data[0].timeSeries;
     // 天気情報（最初のtimeSeries）
     const weatherAreas = ts[0].areas;
     const area = weatherAreas[0];
-    const areaName = area.area.name;
+    const subArea = area.area.name;
+    // 「甲府」→「山梨(中西部)」のように表示。サブ地域名だけでは不明なので発表元を併記
+    const areaName = prefMatch ? prefMatch[1] + '(' + subArea + ')' : subArea;
     const todayCode = area.weatherCodes[0];
     const todayWeather = area.weathers ? area.weathers[0] : '';
     // 短い天気表現に整形
