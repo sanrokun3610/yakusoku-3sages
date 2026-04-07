@@ -238,7 +238,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 16:39</span>
+    <span id="ver-display">2026-04-07 16:42</span>
     <span id="budget-display"></span>
   </div>
   <div id="daily-section">
@@ -463,11 +463,10 @@ function loadDaily() {
     if (!data.daily) return;
     try {
       let replies = [];
-      try {
-        const parsed = JSON.parse(data.daily);
-        if (Array.isArray(parsed)) replies = parsed;
-      } catch(e) {
-        replies = parseReplies(data.daily, 'arc');
+      if (Array.isArray(data.daily)) {
+        replies = data.daily;
+      } else if (typeof data.daily === 'string') {
+        try { replies = JSON.parse(data.daily); } catch(e) { replies = parseReplies(data.daily, 'arc'); }
       }
       if (!replies || replies.length === 0) return;
       const section = document.getElementById('daily-section');
