@@ -106,7 +106,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 09:09</span>
+    <span id="ver-display">2026-04-07 10:40</span>
     <span id="budget-display"></span>
   </div>
   <div id="messages"></div>
@@ -181,8 +181,12 @@ function removeTyping(id) { document.getElementById(id)?.remove(); }
 
 function updateBudget(b) {
   if (!b) return;
-  budgetEl.textContent = '残り¥' + b.remainingJPY;
-  budgetEl.style.color = b.remainingJPY < 100 ? '#e00' : '#888';
+  const used = b.usedJPY || 0;
+  const limit = b.limitJPY || 500;
+  const remaining = b.remainingJPY;
+  const pct = Math.round(used / limit * 100);
+  budgetEl.textContent = '¥' + used + ' / ¥' + limit + ' (' + pct + '%)';
+  budgetEl.style.color = remaining < 100 ? '#e00' : remaining < 200 ? '#e87' : '#888';
 }
 
 function callAPI(userMessage) {
