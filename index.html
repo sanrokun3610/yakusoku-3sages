@@ -238,7 +238,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 16:42</span>
+    <span id="ver-display">2026-04-07 17:19</span>
     <span id="budget-display"></span>
   </div>
   <div id="daily-section">
@@ -456,7 +456,8 @@ function sendScore(char, type, likeSpan, dislikeSpan) {
 
 function loadDaily() {
   const cb = 'daily_' + Date.now();
-  const url = GAS_URL + '?callback=' + cb + '&action=daily';
+  const areaParam = new URLSearchParams(window.location.search).get('area') || '190000';
+  const url = GAS_URL + '?callback=' + cb + '&action=daily&area=' + areaParam;
   const cleanup = () => { delete window[cb]; document.getElementById('s_' + cb)?.remove(); };
   window[cb] = function(data) {
     cleanup();
