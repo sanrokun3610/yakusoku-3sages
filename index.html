@@ -14,6 +14,32 @@
   --text-muted: #888;
 }
 
+
+#daily-section {
+  flex-shrink: 0;
+  background: var(--color-background-secondary, #f5f3ee);
+  border-bottom: 1px solid #e8e4dc;
+  padding: 10px 12px;
+  display: none;
+}
+#daily-section .daily-title {
+  font-size: 11px; color: #888; margin-bottom: 8px; text-align: center;
+}
+.daily-row {
+  display: flex; gap: 6px; align-items: flex-start; margin-bottom: 6px;
+}
+.daily-avatar {
+  width: 28px; height: 28px; border-radius: 50%; overflow: hidden;
+  flex-shrink: 0; background: #ddd;
+}
+.daily-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.daily-bubble {
+  flex: 1; background: white; border-radius: 10px; padding: 6px 10px;
+  font-size: 13px; color: var(--color-text-primary, #1a1a1a); line-height: 1.5;
+  border: 0.5px solid #e0ddd5;
+}
+.daily-heat-row { padding-left: 34px; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+
 #intro {
   flex-shrink: 0;
   background: #fff;
@@ -180,6 +206,12 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 #send-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+.heat-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; padding-left: 48px; }
+.heat-bar-bg { flex: 1; height: 5px; background: var(--color-border-tertiary, #e0ddd5); border-radius: 3px; overflow: hidden; }
+.heat-bar { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.heat-num { font-size: 11px; width: 22px; text-align: right; }
+
 .score-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; padding: 0 4px; }
 .score-btn {
   background: none; border: 1px solid #ddd; border-radius: 12px;
@@ -206,8 +238,12 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 16:02</span>
+    <span id="ver-display">2026-04-07 16:27</span>
     <span id="budget-display"></span>
+  </div>
+  <div id="daily-section">
+    <div class="daily-title">今日の3人</div>
+    <div id="daily-content"></div>
   </div>
   <div id="intro">
     <div id="intro-header">
@@ -303,11 +339,33 @@ function addMsg(char, text) {
   const nm = document.createElement('span'); nm.className = 'char-name';
   nm.textContent = isUser ? (getUserName() || 'あなた') : (NAMES[char] || char);
   const bubble = document.createElement('div'); bubble.className = 'bubble ' + char;
-  bubble.textContent = text;
+  bubble.textContent = (typeof text === 'object' && text.message) ? text.message : text;
   col.appendChild(nm); col.appendChild(bubble);
   if (!isUser) { row.appendChild(av); row.appendChild(col); }
   else { row.appendChild(col); row.appendChild(av); }
   msgsEl.appendChild(row);
+
+  // AIの吹き出しに熱量バー追加
+  if (!isUser && ['ray','arc','shade'].includes(char) && typeof text._heat !== 'undefined') {
+    const heat = text._heat || 0;
+    const heatRow = document.createElement('div');
+    heatRow.className = 'heat-row';
+    const barBg = document.createElement('div');
+    barBg.className = 'heat-bar-bg';
+    const bar = document.createElement('div');
+    bar.className = 'heat-bar';
+    bar.style.width = heat + '%';
+    const colors = { ray: '#378ADD', arc: '#639922', shade: heat >= 61 ? '#E24B4A' : '#888780' };
+    bar.style.background = heat >= 91 ? 'linear-gradient(90deg,#E24B4A,#BA7517)' : (colors[char] || '#888');
+    barBg.appendChild(bar);
+    const num = document.createElement('span');
+    num.className = 'heat-num';
+    num.style.color = bar.style.background.includes('gradient') ? '#E24B4A' : (colors[char] || '#888');
+    num.textContent = heat >= 100 ? '🔥' : String(heat);
+    heatRow.appendChild(barBg);
+    heatRow.appendChild(num);
+    msgsEl.appendChild(heatRow);
+  }
 
   // AIの吹き出しにスコアボタン追加
   if (!isUser && ['ray','arc','shade'].includes(char)) {
@@ -388,6 +446,63 @@ function sendScore(char, type, likeSpan, dislikeSpan) {
         dislikeSpan.textContent = s.dislike;
       }
     }
+  };
+  const s = document.createElement('script');
+  s.id = 's_' + cb;
+  s.src = url;
+  document.body.appendChild(s);
+}
+
+
+function loadDaily() {
+  const cb = 'daily_' + Date.now();
+  const url = GAS_URL + '?callback=' + cb + '&action=daily';
+  const cleanup = () => { delete window[cb]; document.getElementById('s_' + cb)?.remove(); };
+  window[cb] = function(data) {
+    cleanup();
+    if (!data.daily) return;
+    try {
+      const replies = parseReplies(data.daily, 'arc');
+      if (!replies || replies.length === 0) return;
+      const section = document.getElementById('daily-section');
+      const content = document.getElementById('daily-content');
+      content.innerHTML = '';
+      replies.forEach(r => {
+        const row = document.createElement('div');
+        row.className = 'daily-row';
+        const av = document.createElement('div');
+        av.className = 'daily-avatar';
+        const img = document.createElement('img');
+        img.src = IMAGES[r.char] || IMAGES.arc;
+        av.appendChild(img);
+        const bubble = document.createElement('div');
+        bubble.className = 'daily-bubble';
+        bubble.textContent = r.message;
+        row.appendChild(av);
+        row.appendChild(bubble);
+        content.appendChild(row);
+        if (r.heat) {
+          const hr = document.createElement('div');
+          hr.className = 'daily-heat-row';
+          const bg = document.createElement('div');
+          bg.className = 'heat-bar-bg';
+          const bar = document.createElement('div');
+          bar.className = 'heat-bar';
+          bar.style.width = r.heat + '%';
+          const colors = { ray: '#378ADD', arc: '#639922', shade: r.heat >= 61 ? '#E24B4A' : '#888780' };
+          bar.style.background = colors[r.char] || '#888';
+          bg.appendChild(bar);
+          const num = document.createElement('span');
+          num.className = 'heat-num';
+          num.style.color = colors[r.char] || '#888';
+          num.textContent = r.heat >= 100 ? '🔥' : String(r.heat);
+          hr.appendChild(bg);
+          hr.appendChild(num);
+          content.appendChild(hr);
+        }
+      });
+      section.style.display = 'block';
+    } catch(e) {}
   };
   const s = document.createElement('script');
   s.id = 's_' + cb;
@@ -495,7 +610,9 @@ async function runConversation(userText) {
     const raw = await callAPI(userText);
     removeTyping('typing');
     const replies = parseReplies(raw, fallbackChar);
-    replies.forEach(r => addMsg(r.char, r.message));
+    replies.forEach(r => {
+      addMsg(r.char, { message: r.message, _heat: r.heat || 0 });
+    });
   } catch(err) {
     removeTyping('typing'); showError(err.message || 'エラーが発生しました');
   }
@@ -567,6 +684,7 @@ function getDisplayName() { return getUserName() + getSuffix(); }
     else { switchToNameInput(); }
   }
   loadScores();
+  loadDaily();
 })();
 </script>
 </body>
