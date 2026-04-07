@@ -182,17 +182,6 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   gap: 8px;
 }
 #user-banner-name { font-size: 15px; }
-#user-switch-btn {
-  background: rgba(255,255,255,0.25);
-  border: 1px solid rgba(255,255,255,0.5);
-  color: white;
-  border-radius: 14px;
-  padding: 2px 10px;
-  font-size: 11px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
 /* === Messages === */
 #messages {
   flex: 1; overflow-y: auto; overflow-x: hidden;
@@ -295,7 +284,6 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   <div id="user-banner" style="display:none">
     <span>🟢</span>
     <span id="user-banner-name"></span>
-    <button id="user-switch-btn">切り替え</button>
   </div>
 
   <!-- スコアサマリー（intro閉じても表示） -->
@@ -837,25 +825,25 @@ async function loadWeather(areaCode) {
 
 // === キャラ別天気コメント生成 ===
 function addWeatherComments(w) {
+  const dn = getDisplayName() || 'あなた';
   const high = Number(w.tempHigh) || null;
   const low = Number(w.tempLow) || null;
   const code = Number(w.todayCode) || 0;
   const isRain = code >= 300 && code < 400;
   const isSnow = code >= 400 && code < 500;
   const isCloudyRain = (code >= 200 && code < 300) && String(w.todayCode).match(/02|06|07|08|09/);
-  const willRain = isRain || isSnow || isCloudyRain;
   const tomorrowRain = (Number(w.tomorrowCode) >= 300 && Number(w.tomorrowCode) < 400) ||
                        (Number(w.tomorrowCode) >= 400 && Number(w.tomorrowCode) < 500);
 
   // --- Ray: 天気予報全般 ---
-  let rayMsg = w.areaName + 'の今日の天気は' + w.shortWeather + '。';
+  let rayMsg = dn + '、' + w.areaName + 'の今日の天気は' + w.shortWeather + 'だよ。';
   if (high && low) {
     rayMsg += '最高' + high + '°C、最低' + low + '°C。';
   } else if (high) {
     rayMsg += '最高気温は' + high + '°C。';
   }
   if (w.tomorrowDesc) {
-    rayMsg += '明日は' + w.tomorrowDesc + 'の予報だよ。';
+    rayMsg += '明日は' + w.tomorrowDesc + 'の予報。参考にしてね。';
   }
   addMsg('ray', rayMsg);
 
@@ -864,37 +852,37 @@ function addWeatherComments(w) {
   const ref = high || low;
   if (ref !== null) {
     if (ref >= 30) {
-      arcMsg = '今日は暑くなりそうだね！通気性のいい服で、水分もこまめに取ってね。熱中症に気をつけて。';
+      arcMsg = dn + '、今日は暑くなりそうだね！通気性のいい服で、水分もこまめに取ってね。熱中症に気をつけて。';
     } else if (ref >= 25) {
-      arcMsg = '半袖でちょうどいい気温だね。日差しが強いなら帽子やサングラスもあると安心だよ。';
+      arcMsg = dn + '、半袖でちょうどいい気温だね。日差しが強いなら帽子やサングラスもあると安心だよ。';
     } else if (ref >= 20) {
-      arcMsg = '過ごしやすい気温だね。薄手の長袖か、羽織るもの一枚あると調節しやすいよ。';
+      arcMsg = dn + '、過ごしやすい気温だね。薄手の長袖か、羽織るもの一枚あると調節しやすいよ。';
     } else if (ref >= 15) {
-      arcMsg = '少し肌寒いかも。長袖にカーディガンとか、重ね着で調節するのがおすすめだよ。';
+      arcMsg = dn + '、少し肌寒いかも。長袖にカーディガンとか、重ね着で調節するのがおすすめだよ。';
     } else if (ref >= 10) {
-      arcMsg = 'しっかり冷えるから、ジャケットやコートを忘れずにね。暖かくして出かけよう。';
+      arcMsg = dn + '、しっかり冷えるからジャケットやコートを忘れずにね。暖かくして出かけよう。';
     } else if (ref >= 5) {
-      arcMsg = 'かなり寒いよ！厚手のコートにマフラーや手袋もあった方がいいかも。';
+      arcMsg = dn + '、かなり寒いよ！厚手のコートにマフラーや手袋もあった方がいいかも。';
     } else {
-      arcMsg = '真冬の寒さだね…ダウンコートにしっかり防寒して。外に出るなら完全装備で！';
+      arcMsg = dn + '、真冬の寒さだね…ダウンコートにしっかり防寒して。外に出るなら完全装備で！';
     }
   } else {
-    arcMsg = '気温データが取れなかったけど、体調に合わせて無理しない服装にしてね。';
+    arcMsg = dn + '、気温データが取れなかったけど、体調に合わせて無理しない服装にしてね。';
   }
   addMsg('arc', arcMsg);
 
   // --- Shade: 傘が必要かどうか ---
   let shadeMsg = '';
   if (isRain) {
-    shadeMsg = '今日は雨だぞ。傘持ってけ。忘れて濡れても知らねーからな。';
+    shadeMsg = 'おい' + dn + '、今日は雨だぞ。傘持ってけ。忘れて濡れても知らねーからな。';
   } else if (isSnow) {
-    shadeMsg = '雪だってさ。傘いるだろ、当然。足元も滑るから気をつけろよ。';
+    shadeMsg = dn + '、雪だってさ。傘いるだろ、当然。足元も滑るから気をつけろよ。';
   } else if (isCloudyRain) {
-    shadeMsg = '曇りだけど雨降るかもな。折りたたみ傘くらい突っ込んどけ。';
+    shadeMsg = dn + '、曇りだけど雨降るかもな。折りたたみ傘くらい突っ込んどけ。';
   } else if (tomorrowRain) {
-    shadeMsg = '今日は傘いらねーけど、明日は降りそうだ。明日の準備は今日のうちにしとけ。';
+    shadeMsg = dn + '、今日は傘いらねーけど、明日は降りそうだ。明日の準備は今日のうちにしとけ。';
   } else {
-    shadeMsg = '今日は傘いらねーよ。身軽に行ってこい。';
+    shadeMsg = dn + '、今日は傘いらねーよ。身軽に行ってこい。';
   }
   addMsg('shade', shadeMsg);
 }
@@ -959,7 +947,7 @@ function loadScores() {
 
 // === API呼び出し ===
 function callAPI(userMessage) {
-  const url = GAS_URL + '?action=chat&user=' + encodeURIComponent(getUserName() || 'anonymous') + '&message=' + encodeURIComponent(userMessage);
+  const url = GAS_URL + '?action=chat&user=' + encodeURIComponent(getUserName() || 'anonymous') + '&displayName=' + encodeURIComponent(getDisplayName()) + '&message=' + encodeURIComponent(userMessage);
   return jsonp(url, 'chat', 35000).then(data => {
     if (data.error === 'BUDGET_EXCEEDED') throw new Error(data.message);
     if (data.error) throw new Error(data.message || data.error);
@@ -1066,7 +1054,7 @@ function switchToNameInput() {
   inputEl.placeholder = 'あなたのお名前を入力...';
   currentMode = 'name_input';
   updateLoginInfo();
-  addMsg('arc', 'はじめまして！あなたのお名前を教えてください。');
+  addMsg('arc', 'はじめまして！あなたのお名前を教えてね。');
 }
 
 // === Event Listeners ===
@@ -1098,7 +1086,6 @@ function doUserSwitch() {
 }
 
 document.getElementById('login-btn').addEventListener('click', doUserSwitch);
-document.getElementById('user-switch-btn').addEventListener('click', doUserSwitch);
 
 // (C) Introパネルの状態永続化
 document.getElementById('intro-close').addEventListener('click', () => {
