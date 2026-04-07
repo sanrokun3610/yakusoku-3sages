@@ -206,7 +206,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 15:22</span>
+    <span id="ver-display">2026-04-07 16:02</span>
     <span id="budget-display"></span>
   </div>
   <div id="intro">
@@ -443,9 +443,20 @@ function callAPI(userMessage) {
 
 function parseReplies(raw, fallbackChar) {
   fallbackChar = fallbackChar || 'arc';
-  // JSON配列パース
+
+  // JSON配列パース（複数パターン対応）
   try {
-    const m = raw.match(/\[[\s\S]*?\]/);
+    // そのままJSONとして試みる
+    const trimmed = raw.trim();
+    if (trimmed.startsWith('[')) {
+      const a = JSON.parse(trimmed);
+      if (Array.isArray(a) && a.length > 0) return a;
+    }
+  } catch(e) {}
+
+  try {
+    // []を含む部分を抽出
+    const m = raw.match(/\[[\s\S]*\]/);
     if (m) {
       const a = JSON.parse(m[0]);
       if (Array.isArray(a) && a.length > 0) return a;
