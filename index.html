@@ -182,6 +182,45 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   gap: 8px;
 }
 #user-banner-name { font-size: 15px; }
+/* === Care Alert Banner === */
+#care-alert {
+  flex-shrink: 0;
+  display: none;
+  margin: 8px 10px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #fff5f0 0%, #fff0f5 100%);
+  border: 1px solid #f5d0c5;
+  border-radius: 12px;
+  gap: 8px;
+  align-items: flex-start;
+  animation: careSlideIn 0.4s ease;
+}
+#care-alert.visible { display: flex; }
+@keyframes careSlideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.care-alert-avatar {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  overflow: hidden; background: #ddd;
+}
+.care-alert-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.care-alert-body { flex: 1; }
+.care-alert-label {
+  font-size: 10px; font-weight: 700; color: #d4836b;
+  margin-bottom: 3px; display: flex; align-items: center; gap: 4px;
+}
+.care-alert-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+.care-alert-time { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+.care-alert-actions { display: flex; gap: 6px; margin-top: 6px; }
+.care-alert-btn {
+  padding: 4px 12px; border-radius: 14px; font-size: 11px;
+  font-weight: 600; cursor: pointer; border: none;
+}
+.care-alert-btn.primary { background: var(--accent); color: white; }
+.care-alert-btn.secondary { background: #eee; color: var(--text-muted); }
+#care-alert-close {
+  background: none; border: none; cursor: pointer;
+  color: #ccc; font-size: 16px; flex-shrink: 0; line-height: 1; padding: 0 2px;
+}
+
 /* === Messages === */
 #messages {
   flex: 1; overflow-y: auto; overflow-x: hidden;
@@ -322,6 +361,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
     <div id="intro-header">
       <h2>さんみん</h2>
       <p>3人のAIが、あなたの話を一緒に考えます</p>
+      <p style="font-size:10px;color:#aaa;margin-top:6px">「さんみん」＝ 3人の民。三者三様の視点で寄り添う、3人のAI市民たち。</p>
     </div>
     <div class="char-cards">
       <div class="char-card ray">
@@ -359,6 +399,23 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       </div>
     </div>
     <button id="intro-close">3人と話してみる →</button>
+  </div>
+
+  <!-- パートナーケアアラート -->
+  <div id="care-alert">
+    <div class="care-alert-avatar">
+      <img src="" alt="Arc" id="care-alert-img">
+    </div>
+    <div class="care-alert-body">
+      <div class="care-alert-label">💛 Arcからのお知らせ</div>
+      <div class="care-alert-text" id="care-alert-text"></div>
+      <div class="care-alert-time" id="care-alert-time"></div>
+      <div class="care-alert-actions">
+        <button class="care-alert-btn primary" id="care-alert-reply">声をかける</button>
+        <button class="care-alert-btn secondary" id="care-alert-dismiss">あとで</button>
+      </div>
+    </div>
+    <button id="care-alert-close">×</button>
   </div>
 
   <div id="messages"></div>
@@ -422,6 +479,110 @@ function updateLoginInfo() {
     banner.style.display = 'none';
   }
 }
+
+// === パートナーケアアラート ===
+// パートナー設定（名前 → { partner名, partnerの表示名 }）
+const PARTNERS = {
+  'くま': { name: 'とも', displayName: 'ともちゃん' },
+  'とも': { name: 'くま', displayName: 'くまさん' }
+};
+
+// 感情キーワード（カテゴリ別）
+const DISTRESS_PATTERNS = [
+  { pattern: /死にたい|消えたい|いなくなりたい|もう[無む]理/, level: 'critical', label: 'とても辛そう' },
+  { pattern: /つら[いく]|辛[いく]|しんどい|苦し[いく]|泣[いき]|涙が|落ち込[むん]|凹[むん]|へこ[むん]|鬱|うつ/, level: 'high', label: '落ち込んでいるかも' },
+  { pattern: /体調[が\s]*悪|具合[が\s]*悪|熱がある|風邪|頭[が\s]*痛|お腹[が\s]*痛|吐き気|めまい|だるい|気持ち悪/, level: 'health', label: '体調が悪そう' },
+  { pattern: /疲れ[たて]|眠れない|寝れない|不安|ストレス|イライラ|むかつく|限界|我慢/, level: 'medium', label: '疲れやストレスを感じているかも' },
+  { pattern: /寂し[いく]|孤独|誰も|ひとりぼっち|一人[がは]/, level: 'medium', label: '寂しそう' }
+];
+
+// 検出した distress から level に応じたArcメッセージを生成
+function buildCareMessage(senderDisplayName, match) {
+  const level = match.level;
+  const label = match.label;
+  if (level === 'critical') {
+    return senderDisplayName + 'が「' + label + '」な様子です。できるだけ早く声をかけてあげてほしいな。';
+  } else if (level === 'health') {
+    return senderDisplayName + 'が' + label + 'みたい。「大丈夫？」って聞いてあげるだけでも嬉しいと思うよ。';
+  } else if (level === 'high') {
+    return senderDisplayName + 'が' + label + '。そっと寄り添ってあげてね。';
+  } else {
+    return senderDisplayName + 'が' + label + '。気にかけてあげてね。';
+  }
+}
+
+// ユーザーの発言を分析して distress を検出
+function detectDistress(text) {
+  for (const dp of DISTRESS_PATTERNS) {
+    if (dp.pattern.test(text)) return dp;
+  }
+  return null;
+}
+
+// GASにケアアラートを送信
+function sendCareAlert(fromUser, fromDisplayName, level, label) {
+  const partner = PARTNERS[fromUser];
+  if (!partner) return;
+  const url = GAS_URL + '?action=carealert'
+    + '&from=' + encodeURIComponent(fromUser)
+    + '&fromDisplay=' + encodeURIComponent(fromDisplayName)
+    + '&to=' + encodeURIComponent(partner.name)
+    + '&level=' + encodeURIComponent(level)
+    + '&label=' + encodeURIComponent(label);
+  jsonp(url, 'carealert', 15000).catch(e => console.warn('ケアアラート送信失敗:', e));
+}
+
+// GASからケアアラートを取得（ページ読み込み時）
+function loadCareAlerts() {
+  const user = getUserName();
+  if (!user || !PARTNERS[user]) return;
+  const url = GAS_URL + '?action=getcarealerts&user=' + encodeURIComponent(user);
+  jsonp(url, 'getcare', 15000).then(data => {
+    if (data.alerts && data.alerts.length > 0) {
+      showCareAlert(data.alerts[0]); // 最新のアラートを1件表示
+    }
+  }).catch(e => console.warn('ケアアラート取得失敗:', e));
+}
+
+// ケアアラートをUIに表示
+function showCareAlert(alert) {
+  const el = document.getElementById('care-alert');
+  const partner = PARTNERS[getUserName()];
+  if (!partner) return;
+
+  document.getElementById('care-alert-img').src = IMAGES.arc;
+  document.getElementById('care-alert-text').textContent =
+    alert.message || buildCareMessage(alert.fromDisplay || partner.displayName, { level: alert.level, label: alert.label });
+
+  // 時刻表示
+  if (alert.time) {
+    const d = new Date(alert.time);
+    const pad = n => String(n).padStart(2, '0');
+    document.getElementById('care-alert-time').textContent =
+      pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' ごろのこと';
+  }
+
+  el.classList.add('visible');
+}
+
+// 「声をかける」ボタン → 入力欄にパートナー宛のメッセージを下書き
+document.getElementById('care-alert-reply').addEventListener('click', () => {
+  const partner = PARTNERS[getUserName()];
+  if (!partner) return;
+  document.getElementById('care-alert').classList.remove('visible');
+  // パートナーへの優しい一言を入力欄にセット
+  inputEl.value = '';
+  inputEl.focus();
+  inputEl.placeholder = partner.displayName + 'に声をかけよう...';
+});
+
+// 「あとで」/ ×ボタン
+document.getElementById('care-alert-dismiss').addEventListener('click', () => {
+  document.getElementById('care-alert').classList.remove('visible');
+});
+document.getElementById('care-alert-close').addEventListener('click', () => {
+  document.getElementById('care-alert').classList.remove('visible');
+});
 
 // === Error Banner (D) 自動非表示 + 閉じるボタン ===
 let errorTimer = null;
@@ -1001,6 +1162,15 @@ async function runConversation(userText) {
   sendBtn.disabled = true;
   addMsg('user', userText);
 
+  // パートナーケア: ユーザーの発言からdistressを検出
+  const distress = detectDistress(userText);
+  if (distress) {
+    const user = getUserName();
+    if (PARTNERS[user]) {
+      sendCareAlert(user, getDisplayName(), distress.level, distress.label);
+    }
+  }
+
   // メンションキャラを検出（フォールバック用）
   const mentionMatch = userText.match(/@(Ray|Arc|Shade)/i);
   const fallbackChar = mentionMatch ? mentionMatch[1].toLowerCase() : 'arc';
@@ -1166,7 +1336,8 @@ document.getElementById('intro-close').addEventListener('click', () => {
 
   loadScores();
   loadDaily();
-  loadWeather(areaCode); // 天気予報読み込み
+  loadWeather(areaCode);
+  loadCareAlerts(); // パートナーケアアラート取得
 })();
 </script>
 </body>
