@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>さんみん</title>
+<link id="app-icon" rel="apple-touch-icon" href="https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Arc.png">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root {
@@ -179,6 +180,18 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 #send-btn:disabled { background: #ccc; cursor: not-allowed; }
+.score-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; padding: 0 4px; }
+.score-btn {
+  background: none; border: 1px solid #ddd; border-radius: 12px;
+  padding: 2px 8px; font-size: 11px; cursor: pointer; color: #888;
+  display: flex; align-items: center; gap: 3px; transition: all 0.15s;
+}
+.score-btn:hover { background: #f5f5f5; }
+.score-btn.liked { border-color: #06c755; color: #06c755; background: #eaf3de; }
+.score-btn.disliked { border-color: #e57; color: #e57; background: #fce8e8; }
+.char-star { font-size: 13px; color: #f5a623; margin-top: 4px; }
+.char-star-count { font-size: 10px; color: #888; margin-left: 2px; }
+
 </style>
 </head>
 <body>
@@ -193,7 +206,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 14:14</span>
+    <span id="ver-display">2026-04-07 14:37</span>
     <span id="budget-display"></span>
   </div>
   <div id="intro">
@@ -206,6 +219,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
         <img src="https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Ray.png" alt="Ray">
         <div class="char-card-name">Ray レイ</div>
         <div class="char-card-role">事実を冷静に整理する<br>分析担当</div>
+        <div class="char-star" id="star-ray"><span style="color:#ccc;font-size:11px">評価なし</span></div>
         <div class="char-card-tags">
           <span class="char-tag">論理的</span>
           <span class="char-tag">データ重視</span>
@@ -216,6 +230,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
         <img src="https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Arc.png" alt="Arc">
         <div class="char-card-name">Arc アーク</div>
         <div class="char-card-role">気持ちに寄り添う<br>共感担当</div>
+        <div class="char-star" id="star-arc"><span style="color:#ccc;font-size:11px">評価なし</span></div>
         <div class="char-card-tags">
           <span class="char-tag">穏やか</span>
           <span class="char-tag">共感</span>
@@ -226,6 +241,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
         <img src="https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Shade.png" alt="Shade">
         <div class="char-card-name">Shade シェイド</div>
         <div class="char-card-role">問題点を鋭く突く<br>辛口担当</div>
+        <div class="char-star" id="star-shade"><span style="color:#ccc;font-size:11px">評価なし</span></div>
         <div class="char-card-tags">
           <span class="char-tag">皮肉屋</span>
           <span class="char-tag">本質をつく</span>
@@ -292,6 +308,36 @@ function addMsg(char, text) {
   if (!isUser) { row.appendChild(av); row.appendChild(col); }
   else { row.appendChild(col); row.appendChild(av); }
   msgsEl.appendChild(row);
+
+  // AIの吹き出しにスコアボタン追加
+  if (!isUser && ['ray','arc','shade'].includes(char)) {
+    const scoreRow = document.createElement('div');
+    scoreRow.className = 'score-row';
+    scoreRow.style.paddingLeft = '48px';
+    const likeBtn = document.createElement('button');
+    likeBtn.className = 'score-btn';
+    likeBtn.innerHTML = '👍 <span>0</span>';
+    const dislikeBtn = document.createElement('button');
+    dislikeBtn.className = 'score-btn';
+    dislikeBtn.innerHTML = '👎 <span>0</span>';
+    let voted = false;
+    likeBtn.addEventListener('click', () => {
+      if (voted) return;
+      voted = true;
+      likeBtn.classList.add('liked');
+      sendScore(char, 'like', likeBtn.querySelector('span'), dislikeBtn.querySelector('span'));
+    });
+    dislikeBtn.addEventListener('click', () => {
+      if (voted) return;
+      voted = true;
+      dislikeBtn.classList.add('disliked');
+      sendScore(char, 'dislike', likeBtn.querySelector('span'), dislikeBtn.querySelector('span'));
+    });
+    scoreRow.appendChild(likeBtn);
+    scoreRow.appendChild(dislikeBtn);
+    msgsEl.appendChild(scoreRow);
+  }
+
   msgsEl.scrollTop = msgsEl.scrollHeight;
 }
 
@@ -313,6 +359,53 @@ function updateBudget(b) {
   const pct = Math.round(used / limit * 100);
   budgetEl.textContent = '¥' + used + ' / ¥' + limit + ' (' + pct + '%)';
   budgetEl.style.color = remaining < 100 ? '#e00' : remaining < 200 ? '#e87' : '#888';
+}
+
+
+function sendScore(char, type, likeSpan, dislikeSpan) {
+  const cb = 'score_' + Date.now();
+  const url = GAS_URL + '?callback=' + cb + '&action=score&char=' + char + '&type=' + type;
+  const cleanup = () => { delete window[cb]; document.getElementById('s_' + cb)?.remove(); };
+  window[cb] = function(data) {
+    cleanup();
+    if (data.scores) {
+      updateIntroScores(data.scores);
+      const s = data.scores[char];
+      if (s) {
+        likeSpan.textContent = s.like;
+        dislikeSpan.textContent = s.dislike;
+      }
+    }
+  };
+  const s = document.createElement('script');
+  s.id = 's_' + cb;
+  s.src = url;
+  document.body.appendChild(s);
+}
+
+function loadScores() {
+  const cb = 'getscore_' + Date.now();
+  const url = GAS_URL + '?callback=' + cb + '&action=getscores';
+  const cleanup = () => { delete window[cb]; document.getElementById('s_' + cb)?.remove(); };
+  window[cb] = function(data) { cleanup(); if (data.scores) updateIntroScores(data.scores); };
+  const s = document.createElement('script');
+  s.id = 's_' + cb;
+  s.src = url;
+  document.body.appendChild(s);
+}
+
+function updateIntroScores(scores) {
+  ['ray','arc','shade'].forEach(char => {
+    const el = document.getElementById('star-' + char);
+    if (!el) return;
+    const s = scores[char];
+    if (!s || s.total === 0) { el.innerHTML = '<span style="color:#ccc;font-size:11px">評価なし</span>'; return; }
+    const full = Math.floor(s.star);
+    const half = (s.star - full) >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    el.innerHTML = '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty) +
+      '<span class="char-star-count">(' + s.star.toFixed(1) + ')</span>';
+  });
 }
 
 function callAPI(userMessage) {
@@ -418,6 +511,14 @@ function getDisplayName() { return getUserName() + getSuffix(); }
   const params = new URLSearchParams(window.location.search);
   const urlUser = params.get('user');
   const urlSuffix = params.get('suffix');
+  const urlIcon = params.get('icon');
+  if (urlIcon && ['ray','arc','shade'].includes(urlIcon.toLowerCase())) {
+    const iconUrl = 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/' +
+      urlIcon.charAt(0).toUpperCase() + urlIcon.slice(1).toLowerCase() + '.png';
+    document.getElementById('app-icon').href = iconUrl;
+    if (urlIcon === 'ray') document.title = 'さんみん - Ray';
+    else if (urlIcon === 'shade') document.title = 'さんみん - Shade';
+  }
 
   if (urlUser) {
     setUserName(urlUser);
@@ -430,6 +531,7 @@ function getDisplayName() { return getUserName() + getSuffix(); }
     if (name) { currentMode = 'chat'; updateLoginInfo(); addMsg('arc', 'おかえり、' + getDisplayName() + '！今日はどんなことを話しましょうか？'); }
     else { switchToNameInput(); }
   }
+  loadScores();
 })();
 </script>
 </body>
