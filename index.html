@@ -106,7 +106,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 10:40</span>
+    <span id="ver-display">2026-04-07 10:48</span>
     <span id="budget-display"></span>
   </div>
   <div id="messages"></div>
@@ -210,10 +210,32 @@ function callAPI(userMessage) {
 }
 
 function parseReplies(raw) {
+  // JSON配列パース
   try {
-    const m = raw.match(/\[[\s\S]*\]/);
-    if (m) { const a = JSON.parse(m[0]); if (Array.isArray(a) && a.length > 0) return a; }
+    const m = raw.match(/\[[\s\S]*?\]/);
+    if (m) {
+      const a = JSON.parse(m[0]);
+      if (Array.isArray(a) && a.length > 0) return a;
+    }
   } catch(e) {}
+
+  // "ray:... / arc:... / shade:..." 形式パース
+  if (raw.includes(' / ')) {
+    const parts = raw.split(' / ');
+    const result = [];
+    for (const part of parts) {
+      const colon = part.indexOf(':');
+      if (colon > 0) {
+        const char = part.slice(0, colon).trim().toLowerCase();
+        const message = part.slice(colon + 1).trim();
+        if (['ray','arc','shade'].includes(char)) {
+          result.push({ char, message });
+        }
+      }
+    }
+    if (result.length > 0) return result;
+  }
+
   return [{ char: 'arc', message: raw }];
 }
 
