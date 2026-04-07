@@ -206,7 +206,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 14:58</span>
+    <span id="ver-display">2026-04-07 15:22</span>
     <span id="budget-display"></span>
   </div>
   <div id="intro">
@@ -441,7 +441,8 @@ function callAPI(userMessage) {
   });
 }
 
-function parseReplies(raw) {
+function parseReplies(raw, fallbackChar) {
+  fallbackChar = fallbackChar || 'arc';
   // JSON配列パース
   try {
     const m = raw.match(/\[[\s\S]*?\]/);
@@ -468,16 +469,22 @@ function parseReplies(raw) {
     if (result.length > 0) return result;
   }
 
-  return [{ char: 'arc', message: raw }];
+  return [{ char: fallbackChar, message: raw }];
 }
 
 async function runConversation(userText) {
   hideError(); sendBtn.disabled = true;
   addMsg('user', userText); addTyping('typing');
+
+  // メンションキャラを検出（フォールバック用）
+  const mentionMatch = userText.match(/@(Ray|Arc|Shade)/i);
+  const fallbackChar = mentionMatch ? mentionMatch[1].toLowerCase() : 'arc';
+
   try {
     const raw = await callAPI(userText);
     removeTyping('typing');
-    parseReplies(raw).forEach(r => addMsg(r.char, r.message));
+    const replies = parseReplies(raw, fallbackChar);
+    replies.forEach(r => addMsg(r.char, r.message));
   } catch(err) {
     removeTyping('typing'); showError(err.message || 'エラーが発生しました');
   }
