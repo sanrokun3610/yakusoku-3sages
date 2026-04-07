@@ -3,135 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>さんみん</title>
 <link id="app-icon" rel="apple-touch-icon" href="https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Arc.png">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root {
-  --line-bg: #efebe1;
-  --line-header: #ffffff;
+  --bg: #efebe1;
+  --bg-secondary: #f5f3ee;
+  --header-bg: #ffffff;
   --text: #1a1a1a;
   --text-muted: #888;
+  --border: #ddd;
+  --border-light: #e8e4dc;
+  --border-subtle: #e0ddd5;
+  --accent: #06c755;
+  --ray-bg: #e8f1fb;
+  --ray-text: #0c447c;
+  --ray-bar: #378ADD;
+  --arc-bg: #eaf3de;
+  --arc-text: #27500a;
+  --arc-bar: #639922;
+  --shade-bg: #f1f0ec;
+  --shade-text: #444;
+  --shade-bar: #888780;
+  --error-bg: #fce8e8;
+  --error-text: #a32d2d;
 }
 
-
-#daily-section {
-  flex-shrink: 0;
-  background: var(--color-background-secondary, #f5f3ee);
-  border-bottom: 1px solid #e8e4dc;
-  padding: 10px 12px;
-  display: none;
-}
-#daily-section .daily-title {
-  font-size: 11px; color: #888; margin-bottom: 8px; text-align: center;
-}
-.daily-row {
-  display: flex; gap: 6px; align-items: flex-start; margin-bottom: 6px;
-}
-.daily-avatar {
-  width: 28px; height: 28px; border-radius: 50%; overflow: hidden;
-  flex-shrink: 0; background: #ddd;
-}
-.daily-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
-.daily-bubble {
-  flex: 1; background: white; border-radius: 10px; padding: 6px 10px;
-  font-size: 13px; color: var(--color-text-primary, #1a1a1a); line-height: 1.5;
-  border: 0.5px solid #e0ddd5;
-}
-.daily-heat-row { padding-left: 34px; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-
-#intro {
-  flex-shrink: 0;
-  background: #fff;
-  border-bottom: 1px solid #e8e4dc;
-  padding: 16px 12px;
-  overflow-y: auto;
-}
-#intro-header {
-  text-align: center;
-  margin-bottom: 14px;
-}
-#intro-header h2 {
-  font-size: 18px;
-  font-weight: 800;
-  color: #1a1a1a;
-  letter-spacing: 0.05em;
-}
-#intro-header p {
-  font-size: 12px;
-  color: #888;
-  margin-top: 4px;
-}
-.char-cards {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-.char-card {
-  flex: 1;
-  border-radius: 12px;
-  padding: 10px 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.char-card.ray { background: #e8f1fb; }
-.char-card.arc { background: #eaf3de; }
-.char-card.shade { background: #f1f0ec; }
-.char-card img {
-  width: 52px; height: 52px;
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: center top;
-  background: #ddd;
-}
-.char-card-name {
-  font-size: 12px;
-  font-weight: 700;
-  color: #1a1a1a;
-}
-.char-card-role {
-  font-size: 10px;
-  color: #555;
-  text-align: center;
-  line-height: 1.4;
-}
-.char-card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  justify-content: center;
-}
-.char-tag {
-  font-size: 9px;
-  padding: 2px 5px;
-  border-radius: 8px;
-  font-weight: 600;
-}
-.ray .char-tag { background: #c8dff8; color: #0c447c; }
-.arc .char-tag { background: #c8e8b4; color: #27500a; }
-.shade .char-tag { background: #dddbd5; color: #444; }
-#intro-close {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  background: #06c755;
-  color: white;
-  border: none;
-  border-radius: 22px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  letter-spacing: 0.05em;
-}
-
-html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: var(--line-bg); }
+html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: var(--bg); }
 #app { display: flex; flex-direction: column; width: 100vw; height: 100dvh; overflow: hidden; }
+
+/* === Header === */
 #header {
   flex-shrink: 0;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border);
   padding: 10px 12px;
   padding-top: max(10px, env(safe-area-inset-top));
   display: flex;
@@ -144,86 +53,177 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 #login-info { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
 .badges { display: flex; gap: 4px; flex-shrink: 0; }
 .badge { padding: 2px 7px; border-radius: 12px; font-size: 10px; font-weight: 600; white-space: nowrap; }
-.badge.ray { background: #e8f1fb; color: #0c447c; }
-.badge.arc { background: #eaf3de; color: #27500a; }
-.badge.shade { background: #f1f0ec; color: #444; }
+.badge.ray { background: var(--ray-bg); color: var(--ray-text); }
+.badge.arc { background: var(--arc-bg); color: var(--arc-text); }
+.badge.shade { background: var(--shade-bg); color: var(--shade-text); }
 #ver-display { font-size: 9px; color: #ccc; white-space: nowrap; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; }
 #budget-display { margin-left: auto; font-size: 11px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
-#messages {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  padding: 12px 10px;
-  display: flex;
-  flex-direction: column;
+
+/* === Weather Bar === */
+#weather-bar {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #e3f0ff 0%, #f0f7ff 100%);
+  border-bottom: 1px solid var(--border-light);
+  padding: 8px 12px;
+  display: none;
+  align-items: center;
   gap: 8px;
+  font-size: 12px;
+  color: var(--text);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+#weather-bar.visible { display: flex; }
+.weather-icon { font-size: 22px; flex-shrink: 0; }
+.weather-main { display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; }
+.weather-area { font-size: 10px; color: var(--text-muted); }
+.weather-desc { font-size: 13px; font-weight: 600; }
+.weather-temps { display: flex; gap: 6px; align-items: center; flex-shrink: 0; margin-left: 4px; }
+.weather-temp-high { color: #d44; font-weight: 700; font-size: 14px; }
+.weather-temp-low { color: #38a; font-weight: 700; font-size: 14px; }
+.weather-sep { color: var(--border); font-size: 16px; margin: 0 4px; }
+.weather-tomorrow { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+.weather-tomorrow-icon { font-size: 16px; }
+
+/* === Daily Section === */
+#daily-section {
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+  padding: 10px 12px;
+  display: none;
+}
+#daily-section .daily-title {
+  font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-align: center;
+}
+.daily-row { display: flex; gap: 6px; align-items: flex-start; margin-bottom: 6px; }
+.daily-avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #ddd; }
+.daily-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.daily-bubble {
+  flex: 1; background: white; border-radius: 10px; padding: 6px 10px;
+  font-size: 13px; color: var(--text); line-height: 1.5;
+  border: 0.5px solid var(--border-subtle);
+}
+.daily-heat-row { padding-left: 34px; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+
+/* === Intro Panel === */
+#intro {
+  flex-shrink: 0;
+  background: #fff;
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+#intro-header { text-align: center; margin-bottom: 14px; }
+#intro-header h2 { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: 0.05em; }
+#intro-header p { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.char-cards { display: flex; gap: 8px; margin-bottom: 14px; }
+.char-card {
+  flex: 1; border-radius: 12px; padding: 10px 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.char-card.ray { background: var(--ray-bg); }
+.char-card.arc { background: var(--arc-bg); }
+.char-card.shade { background: var(--shade-bg); }
+.char-card img {
+  width: 52px; height: 52px; border-radius: 50%;
+  object-fit: cover; object-position: center top; background: #ddd;
+}
+.char-card-name { font-size: 12px; font-weight: 700; color: var(--text); }
+.char-card-role { font-size: 10px; color: #555; text-align: center; line-height: 1.4; }
+.char-card-tags { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
+.char-tag { font-size: 9px; padding: 2px 5px; border-radius: 8px; font-weight: 600; }
+.ray .char-tag { background: #c8dff8; color: var(--ray-text); }
+.arc .char-tag { background: #c8e8b4; color: var(--arc-text); }
+.shade .char-tag { background: #dddbd5; color: var(--shade-text); }
+#intro-close {
+  display: block; width: 100%; padding: 10px;
+  background: var(--accent); color: white; border: none; border-radius: 22px;
+  font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 0.05em;
+}
+.char-star { font-size: 13px; color: #f5a623; margin-top: 4px; }
+.char-star-count { font-size: 10px; color: var(--text-muted); margin-left: 2px; }
+
+/* === Messages === */
+#messages {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 10px; display: flex; flex-direction: column; gap: 8px;
 }
 .msg-row { display: flex; gap: 6px; align-items: flex-end; width: 100%; }
 .msg-row.user { flex-direction: row-reverse; }
 .avatar { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #ddd; }
 .avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
-.avatar.user { background: #06c755; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: white; }
+.avatar.user { background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: white; }
 .bubble-col { display: flex; flex-direction: column; gap: 2px; max-width: calc(100% - 50px); min-width: 0; }
 .char-name { font-size: 10px; color: var(--text-muted); padding: 0 4px; }
 .msg-row.user .char-name { text-align: right; }
 .bubble { padding: 8px 12px; font-size: 14px; line-height: 1.6; word-break: break-word; white-space: pre-wrap; max-width: 100%; }
 .bubble.ray, .bubble.arc, .bubble.shade {
-  background: #fff;
-  color: #1a1a1a;
+  background: #fff; color: var(--text);
   border-radius: 4px 18px 18px 18px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.08);
 }
-.bubble.user { background: #06c755; color: white; border-radius: 18px 4px 18px 18px; }
+.bubble.user { background: var(--accent); color: white; border-radius: 18px 4px 18px 18px; }
+
+/* === Typing === */
 .typing-row { display: flex; gap: 6px; align-items: flex-end; }
 .typing-bubble { background: white; border-radius: 4px 18px 18px 18px; padding: 10px 14px; display: flex; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: #aaa; animation: bounce 1.2s infinite; }
 .dot:nth-child(2) { animation-delay: .15s; }
 .dot:nth-child(3) { animation-delay: .3s; }
 @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
-#error-banner { display: none; flex-shrink: 0; margin: 4px 10px; padding: 7px 11px; background: #fce8e8; border-radius: 8px; font-size: 12px; color: #a32d2d; }
+
+/* === Heat bar === */
+.heat-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; padding-left: 48px; }
+.heat-bar-bg { flex: 1; height: 5px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; }
+.heat-bar { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.heat-num { font-size: 11px; width: 22px; text-align: right; }
+
+/* === Score === */
+.score-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; padding: 0 4px; }
+.score-btn {
+  background: none; border: 1px solid var(--border); border-radius: 12px;
+  padding: 2px 8px; font-size: 11px; cursor: pointer; color: var(--text-muted);
+  display: flex; align-items: center; gap: 3px; transition: all 0.15s;
+}
+.score-btn:hover { background: #f5f5f5; }
+.score-btn.liked { border-color: var(--accent); color: var(--accent); background: var(--arc-bg); }
+.score-btn.disliked { border-color: #e57; color: #e57; background: var(--error-bg); }
+
+/* === Error Banner (D) === */
+#error-banner {
+  display: none; flex-shrink: 0; margin: 4px 10px; padding: 7px 11px;
+  background: var(--error-bg); border-radius: 8px; font-size: 12px; color: var(--error-text);
+  align-items: center; gap: 6px;
+}
+#error-banner.visible { display: flex; }
+#error-banner-text { flex: 1; }
+#error-close-btn {
+  background: none; border: none; cursor: pointer; font-size: 16px;
+  color: var(--error-text); padding: 0 2px; flex-shrink: 0; line-height: 1;
+}
+
+/* === Input Area === */
 #input-area {
-  flex-shrink: 0;
-  background: #f5f5f5;
-  border-top: 1px solid #ddd;
-  padding: 8px 10px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
-  display: flex;
-  gap: 6px;
-  align-items: flex-end;
+  flex-shrink: 0; background: #f5f5f5; border-top: 1px solid var(--border);
+  padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom));
+  display: flex; gap: 6px; align-items: flex-end;
 }
 #input-box {
   flex: 1; resize: none;
-  border: 1px solid #ddd; border-radius: 20px;
+  border: 1px solid var(--border); border-radius: 20px;
   padding: 8px 14px; font-size: 15px; font-family: inherit;
   background: white; color: var(--text); line-height: 1.5;
   min-height: 38px; max-height: 110px; overflow-y: auto; outline: none;
 }
-#input-box:focus { border-color: #06c755; }
+#input-box:focus { border-color: var(--accent); }
 #send-btn {
   width: 36px; height: 36px; border-radius: 50%; border: none;
-  background: #06c755; color: white; font-size: 18px; cursor: pointer;
+  background: var(--accent); color: white; font-size: 18px; cursor: pointer;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 #send-btn:disabled { background: #ccc; cursor: not-allowed; }
-
-.heat-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; padding-left: 48px; }
-.heat-bar-bg { flex: 1; height: 5px; background: var(--color-border-tertiary, #e0ddd5); border-radius: 3px; overflow: hidden; }
-.heat-bar { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
-.heat-num { font-size: 11px; width: 22px; text-align: right; }
-
-.score-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; padding: 0 4px; }
-.score-btn {
-  background: none; border: 1px solid #ddd; border-radius: 12px;
-  padding: 2px 8px; font-size: 11px; cursor: pointer; color: #888;
-  display: flex; align-items: center; gap: 3px; transition: all 0.15s;
-}
-.score-btn:hover { background: #f5f5f5; }
-.score-btn.liked { border-color: #06c755; color: #06c755; background: #eaf3de; }
-.score-btn.disliked { border-color: #e57; color: #e57; background: #fce8e8; }
-.char-star { font-size: 13px; color: #f5a623; margin-top: 4px; }
-.char-star-count { font-size: 10px; color: #888; margin-left: 2px; }
-
 </style>
 </head>
 <body>
@@ -238,13 +238,35 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 17:19</span>
+    <span id="ver-display">2026-04-07</span>
     <span id="budget-display"></span>
   </div>
+
+  <!-- 天気予報バー -->
+  <div id="weather-bar">
+    <span class="weather-icon" id="weather-icon"></span>
+    <div class="weather-main">
+      <span class="weather-area" id="weather-area"></span>
+      <span class="weather-desc" id="weather-desc"></span>
+    </div>
+    <div class="weather-temps">
+      <span class="weather-temp-high" id="weather-high"></span>
+      <span style="color:#aaa">/</span>
+      <span class="weather-temp-low" id="weather-low"></span>
+    </div>
+    <span class="weather-sep">│</span>
+    <div class="weather-tomorrow">
+      <span>明日</span>
+      <span class="weather-tomorrow-icon" id="weather-tomorrow-icon"></span>
+      <span id="weather-tomorrow-desc"></span>
+    </div>
+  </div>
+
   <div id="daily-section">
     <div class="daily-title">今日の3人</div>
     <div id="daily-content"></div>
   </div>
+
   <div id="intro">
     <div id="intro-header">
       <h2>さんみん</h2>
@@ -285,124 +307,186 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
         </div>
       </div>
     </div>
-    <button id="intro-close" onclick="document.getElementById('intro').style.display='none'">3人と話してみる →</button>
+    <button id="intro-close">3人と話してみる →</button>
   </div>
+
   <div id="messages"></div>
-  <div id="error-banner"></div>
+
+  <div id="error-banner">
+    <span id="error-banner-text"></span>
+    <button id="error-close-btn" title="閉じる">×</button>
+  </div>
+
   <div id="input-area">
     <textarea id="input-box" placeholder="メッセージを入力..." rows="1"></textarea>
     <button id="send-btn">↑</button>
   </div>
 </div>
+
 <script>
+// === Constants ===
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwz9QAgg6E0ZmgAR4echwbbPKvL5LoNg5lAqJdfjv-pIWY6ADJzDGy-ALcMZVlsfMHs/exec';
+const JMA_FORECAST_URL = 'https://www.jma.go.jp/bosai/forecast/data/forecast/';
 const NAMES = { ray: 'Ray レイ', arc: 'Arc アーク', shade: 'Shade シェイド' };
 const IMAGES = {
   ray: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Ray.png',
   arc: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Arc.png',
   shade: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Shade.png',
 };
+const CHARS = ['ray', 'arc', 'shade'];
+const HEAT_COLORS = { ray: '#378ADD', arc: '#639922', shade: '#888780' };
+
+// === DOM refs ===
 const msgsEl = document.getElementById('messages');
 const inputEl = document.getElementById('input-box');
 const sendBtn = document.getElementById('send-btn');
 const errorBanner = document.getElementById('error-banner');
+const errorBannerText = document.getElementById('error-banner-text');
 const budgetEl = document.getElementById('budget-display');
 const loginInfo = document.getElementById('login-info');
-let currentMode = 'chat';
 
+// === State ===
+let currentMode = 'chat';
+let isSending = false; // (E) 二重送信防止フラグ
+
+// === User helpers ===
 function getUserName() { return localStorage.getItem('yakusoku_username') || ''; }
 function setUserName(n) { localStorage.setItem('yakusoku_username', n); }
 function clearUserName() { localStorage.removeItem('yakusoku_username'); }
+function getSuffix() { return localStorage.getItem('yakusoku_suffix') || 'さん'; }
+function setSuffix(s) { localStorage.setItem('yakusoku_suffix', s); }
+function getDisplayName() { return getUserName() + getSuffix(); }
 function updateLoginInfo() { loginInfo.textContent = getUserName() || ''; }
 
-document.getElementById('login-btn').addEventListener('click', () => {
-  if (confirm('別のアカウントでログインしますか？')) {
-    clearUserName(); msgsEl.innerHTML = ''; switchToNameInput();
-  }
-});
+// === Error Banner (D) 自動非表示 + 閉じるボタン ===
+let errorTimer = null;
+function showError(msg) {
+  clearTimeout(errorTimer);
+  errorBannerText.textContent = msg;
+  errorBanner.classList.add('visible');
+  errorTimer = setTimeout(hideError, 8000);
+}
+function hideError() {
+  clearTimeout(errorTimer);
+  errorBanner.classList.remove('visible');
+}
+document.getElementById('error-close-btn').addEventListener('click', hideError);
 
-function showError(msg) { errorBanner.style.display = 'block'; errorBanner.textContent = msg; }
-function hideError() { errorBanner.style.display = 'none'; }
+// === (G) 熱量バー生成を共通関数化 ===
+function createHeatBar(char, heat, paddingLeft) {
+  const row = document.createElement('div');
+  row.className = 'heat-row';
+  if (paddingLeft) row.style.paddingLeft = paddingLeft;
 
+  const barBg = document.createElement('div');
+  barBg.className = 'heat-bar-bg';
+  const bar = document.createElement('div');
+  bar.className = 'heat-bar';
+  bar.style.width = heat + '%';
+
+  const shadeHot = heat >= 61 ? '#E24B4A' : HEAT_COLORS.shade;
+  const colors = { ray: HEAT_COLORS.ray, arc: HEAT_COLORS.arc, shade: shadeHot };
+  const color = colors[char] || '#888';
+  bar.style.background = heat >= 91 ? 'linear-gradient(90deg,#E24B4A,#BA7517)' : color;
+
+  barBg.appendChild(bar);
+
+  const num = document.createElement('span');
+  num.className = 'heat-num';
+  num.style.color = heat >= 91 ? '#E24B4A' : color;
+  num.textContent = heat >= 100 ? '🔥' : String(heat);
+
+  row.appendChild(barBg);
+  row.appendChild(num);
+  return row;
+}
+
+// === (K) スコアボタンをDOM APIで安全に生成 ===
+function createScoreButton(emoji, label) {
+  const btn = document.createElement('button');
+  btn.className = 'score-btn';
+  const emojiSpan = document.createTextNode(emoji + ' ');
+  const countSpan = document.createElement('span');
+  countSpan.textContent = '0';
+  btn.appendChild(emojiSpan);
+  btn.appendChild(countSpan);
+  return { btn, countSpan };
+}
+
+// === メッセージ追加 ===
 function addMsg(char, text) {
   const isUser = char === 'user';
   const row = document.createElement('div');
   row.className = 'msg-row' + (isUser ? ' user' : '');
+
   const av = document.createElement('div');
   av.className = 'avatar' + (isUser ? ' user' : '');
   if (!isUser && IMAGES[char]) {
-    const img = document.createElement('img'); img.src = IMAGES[char]; img.alt = char; av.appendChild(img);
+    const img = document.createElement('img');
+    img.src = IMAGES[char];
+    img.alt = char;
+    av.appendChild(img);
   } else if (isUser) {
     av.textContent = (getUserName() || 'く').slice(0, 1);
   }
-  const col = document.createElement('div'); col.className = 'bubble-col';
-  const nm = document.createElement('span'); nm.className = 'char-name';
+
+  const col = document.createElement('div');
+  col.className = 'bubble-col';
+  const nm = document.createElement('span');
+  nm.className = 'char-name';
   nm.textContent = isUser ? (getUserName() || 'あなた') : (NAMES[char] || char);
-  const bubble = document.createElement('div'); bubble.className = 'bubble ' + char;
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble ' + char;
   bubble.textContent = (typeof text === 'object' && text.message) ? text.message : text;
-  col.appendChild(nm); col.appendChild(bubble);
+
+  col.appendChild(nm);
+  col.appendChild(bubble);
+
   if (!isUser) { row.appendChild(av); row.appendChild(col); }
   else { row.appendChild(col); row.appendChild(av); }
   msgsEl.appendChild(row);
 
-  // AIの吹き出しに熱量バー追加
-  if (!isUser && ['ray','arc','shade'].includes(char) && typeof text._heat !== 'undefined') {
-    const heat = text._heat || 0;
-    const heatRow = document.createElement('div');
-    heatRow.className = 'heat-row';
-    const barBg = document.createElement('div');
-    barBg.className = 'heat-bar-bg';
-    const bar = document.createElement('div');
-    bar.className = 'heat-bar';
-    bar.style.width = heat + '%';
-    const colors = { ray: '#378ADD', arc: '#639922', shade: heat >= 61 ? '#E24B4A' : '#888780' };
-    bar.style.background = heat >= 91 ? 'linear-gradient(90deg,#E24B4A,#BA7517)' : (colors[char] || '#888');
-    barBg.appendChild(bar);
-    const num = document.createElement('span');
-    num.className = 'heat-num';
-    num.style.color = bar.style.background.includes('gradient') ? '#E24B4A' : (colors[char] || '#888');
-    num.textContent = heat >= 100 ? '🔥' : String(heat);
-    heatRow.appendChild(barBg);
-    heatRow.appendChild(num);
-    msgsEl.appendChild(heatRow);
+  // 熱量バー (G) 共通関数使用
+  if (!isUser && CHARS.includes(char) && typeof text._heat !== 'undefined' && text._heat > 0) {
+    msgsEl.appendChild(createHeatBar(char, text._heat, '48px'));
   }
 
-  // AIの吹き出しにスコアボタン追加
-  if (!isUser && ['ray','arc','shade'].includes(char)) {
+  // スコアボタン (K) DOM API使用
+  if (!isUser && CHARS.includes(char)) {
     const scoreRow = document.createElement('div');
     scoreRow.className = 'score-row';
     scoreRow.style.paddingLeft = '48px';
-    const likeBtn = document.createElement('button');
-    likeBtn.className = 'score-btn';
-    likeBtn.innerHTML = '👍 <span>0</span>';
-    const dislikeBtn = document.createElement('button');
-    dislikeBtn.className = 'score-btn';
-    dislikeBtn.innerHTML = '👎 <span>0</span>';
+
+    const like = createScoreButton('👍');
+    const dislike = createScoreButton('👎');
     let voted = false;
-    likeBtn.addEventListener('click', () => {
+
+    like.btn.addEventListener('click', () => {
       if (voted) return;
       voted = true;
-      likeBtn.classList.add('liked');
-      sendScore(char, 'like', likeBtn.querySelector('span'), dislikeBtn.querySelector('span'));
+      like.btn.classList.add('liked');
+      sendScore(char, 'like', like.countSpan, dislike.countSpan);
     });
-    dislikeBtn.addEventListener('click', () => {
+    dislike.btn.addEventListener('click', () => {
       if (voted) return;
       voted = true;
-      dislikeBtn.classList.add('disliked');
-      sendScore(char, 'dislike', likeBtn.querySelector('span'), dislikeBtn.querySelector('span'));
+      dislike.btn.classList.add('disliked');
+      sendScore(char, 'dislike', like.countSpan, dislike.countSpan);
     });
+
     const replyBtn = document.createElement('button');
     replyBtn.className = 'score-btn';
-    replyBtn.innerHTML = '↩ 返信';
+    replyBtn.textContent = '↩ 返信';
     replyBtn.addEventListener('click', () => {
-      const tag = '@' + char.charAt(0).toUpperCase() + char.slice(1) + ' ';
-      inputEl.value = tag;
+      inputEl.value = '@' + char.charAt(0).toUpperCase() + char.slice(1) + ' ';
       inputEl.focus();
       inputEl.style.height = 'auto';
       inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + 'px';
     });
-    scoreRow.appendChild(likeBtn);
-    scoreRow.appendChild(dislikeBtn);
+
+    scoreRow.appendChild(like.btn);
+    scoreRow.appendChild(dislike.btn);
     scoreRow.appendChild(replyBtn);
     msgsEl.appendChild(scoreRow);
   }
@@ -410,16 +494,36 @@ function addMsg(char, text) {
   msgsEl.scrollTop = msgsEl.scrollHeight;
 }
 
-function addTyping(id) {
-  const row = document.createElement('div'); row.className = 'typing-row'; row.id = id;
-  const av = document.createElement('div'); av.className = 'avatar';
-  const tb = document.createElement('div'); tb.className = 'typing-bubble';
-  for (let i = 0; i < 3; i++) { const d = document.createElement('div'); d.className = 'dot'; tb.appendChild(d); }
-  row.appendChild(av); row.appendChild(tb); msgsEl.appendChild(row);
+// === (B) タイピングインジケーター（アバター付き） ===
+function addTyping(id, char) {
+  const row = document.createElement('div');
+  row.className = 'typing-row';
+  row.id = id;
+
+  const av = document.createElement('div');
+  av.className = 'avatar';
+  if (char && IMAGES[char]) {
+    const img = document.createElement('img');
+    img.src = IMAGES[char];
+    img.alt = char;
+    av.appendChild(img);
+  }
+
+  const tb = document.createElement('div');
+  tb.className = 'typing-bubble';
+  for (let i = 0; i < 3; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    tb.appendChild(d);
+  }
+  row.appendChild(av);
+  row.appendChild(tb);
+  msgsEl.appendChild(row);
   msgsEl.scrollTop = msgsEl.scrollHeight;
 }
 function removeTyping(id) { document.getElementById(id)?.remove(); }
 
+// === Budget ===
 function updateBudget(b) {
   if (!b) return;
   const used = b.usedJPY || 0;
@@ -430,13 +534,44 @@ function updateBudget(b) {
   budgetEl.style.color = remaining < 100 ? '#e00' : remaining < 200 ? '#e87' : '#888';
 }
 
+// === (J) JSONP安全ラッパー ===
+function jsonp(url, callbackPrefix, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const cb = callbackPrefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const sid = 'jsonp_' + cb;
+    let settled = false;
 
+    const cleanup = () => {
+      settled = true;
+      delete window[cb];
+      document.getElementById(sid)?.remove();
+    };
+
+    const timer = setTimeout(() => {
+      if (!settled) { cleanup(); reject(new Error('タイムアウトしました')); }
+    }, timeoutMs || 35000);
+
+    window[cb] = function(data) {
+      if (settled) return; // (J) タイムアウト後の遅延応答を無視
+      clearTimeout(timer);
+      cleanup();
+      resolve(data);
+    };
+
+    const s = document.createElement('script');
+    s.id = sid;
+    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+    s.onerror = () => {
+      if (!settled) { clearTimeout(timer); cleanup(); reject(new Error('通信エラーが発生しました')); }
+    };
+    document.body.appendChild(s);
+  });
+}
+
+// === Score送信 ===
 function sendScore(char, type, likeSpan, dislikeSpan) {
-  const cb = 'score_' + Date.now();
-  const url = GAS_URL + '?callback=' + cb + '&action=score&char=' + char + '&type=' + type + '&user=' + encodeURIComponent(getUserName() || 'guest');
-  const cleanup = () => { delete window[cb]; document.getElementById('s_' + cb)?.remove(); };
-  window[cb] = function(data) {
-    cleanup();
+  const url = GAS_URL + '?action=score&char=' + char + '&type=' + type + '&user=' + encodeURIComponent(getUserName() || 'guest');
+  jsonp(url, 'score', 15000).then(data => {
     if (data.scores) {
       updateIntroScores(data.scores);
       if (data.favChar) window._favChar = data.favChar;
@@ -446,149 +581,292 @@ function sendScore(char, type, likeSpan, dislikeSpan) {
         dislikeSpan.textContent = s.dislike;
       }
     }
-  };
-  const s = document.createElement('script');
-  s.id = 's_' + cb;
-  s.src = url;
-  document.body.appendChild(s);
+  }).catch(e => console.warn('Score送信失敗:', e));
 }
 
-
-function loadDaily() {
-  const cb = 'daily_' + Date.now();
-  const areaParam = new URLSearchParams(window.location.search).get('area') || '190000';
-  const url = GAS_URL + '?callback=' + cb + '&action=daily&area=' + areaParam;
-  const cleanup = () => { delete window[cb]; document.getElementById('s_' + cb)?.remove(); };
-  window[cb] = function(data) {
-    cleanup();
-    if (!data.daily) return;
-    try {
-      let replies = [];
-      if (Array.isArray(data.daily)) {
-        replies = data.daily;
-      } else if (typeof data.daily === 'string') {
-        try { replies = JSON.parse(data.daily); } catch(e) { replies = parseReplies(data.daily, 'arc'); }
-      }
-      if (!replies || replies.length === 0) return;
-      const section = document.getElementById('daily-section');
-      const content = document.getElementById('daily-content');
-      content.innerHTML = '';
-      replies.forEach(r => {
-        const row = document.createElement('div');
-        row.className = 'daily-row';
-        const av = document.createElement('div');
-        av.className = 'daily-avatar';
-        const img = document.createElement('img');
-        img.src = IMAGES[r.char] || IMAGES.arc;
-        av.appendChild(img);
-        const bubble = document.createElement('div');
-        bubble.className = 'daily-bubble';
-        bubble.textContent = r.message;
-        row.appendChild(av);
-        row.appendChild(bubble);
-        content.appendChild(row);
-        if (r.heat) {
-          const hr = document.createElement('div');
-          hr.className = 'daily-heat-row';
-          const bg = document.createElement('div');
-          bg.className = 'heat-bar-bg';
-          const bar = document.createElement('div');
-          bar.className = 'heat-bar';
-          bar.style.width = r.heat + '%';
-          const colors = { ray: '#378ADD', arc: '#639922', shade: r.heat >= 61 ? '#E24B4A' : '#888780' };
-          bar.style.background = colors[r.char] || '#888';
-          bg.appendChild(bar);
-          const num = document.createElement('span');
-          num.className = 'heat-num';
-          num.style.color = colors[r.char] || '#888';
-          num.textContent = r.heat >= 100 ? '🔥' : String(r.heat);
-          hr.appendChild(bg);
-          hr.appendChild(num);
-          content.appendChild(hr);
-        }
-      });
-      section.style.display = 'none'; // daily-sectionは非表示
-      // チャットエリアに今日の一言を表示
-      replies.forEach(r => {
-        addMsg(r.char, { message: r.message, _heat: r.heat || 0 });
-      });
-    } catch(e) {}
-  };
-  const s = document.createElement('script');
-  s.id = 's_' + cb;
-  s.src = url;
-  document.body.appendChild(s);
-}
-
-function loadScores() {
-  const cb = 'getscore_' + Date.now();
-  const url = GAS_URL + '?callback=' + cb + '&action=getscores&user=' + encodeURIComponent(getUserName() || 'guest');
-  const cleanup = () => { delete window[cb]; document.getElementById('s_' + cb)?.remove(); };
-  window[cb] = function(data) { cleanup(); if (data.scores) updateIntroScores(data.scores); if (data.favChar) window._favChar = data.favChar; };
-  const s = document.createElement('script');
-  s.id = 's_' + cb;
-  s.src = url;
-  document.body.appendChild(s);
-}
-
+// === (K) Intro スコア表示をDOM APIで安全に ===
 function updateIntroScores(scores) {
-  ['ray','arc','shade'].forEach(char => {
+  CHARS.forEach(char => {
     const el = document.getElementById('star-' + char);
     if (!el) return;
     const s = scores[char];
-    if (!s || s.total === 0) { el.innerHTML = '<span style="color:#ccc;font-size:11px">評価なし</span>'; return; }
+    if (!s || s.total === 0) {
+      el.textContent = '';
+      const empty = document.createElement('span');
+      empty.style.cssText = 'color:#ccc;font-size:11px';
+      empty.textContent = '評価なし';
+      el.appendChild(empty);
+      return;
+    }
     const full = Math.floor(s.star);
     const half = (s.star - full) >= 0.5 ? 1 : 0;
     const empty = 5 - full - half;
-    el.innerHTML = '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty) +
-      '<span class="char-star-count">(' + s.star.toFixed(1) + ')</span>' +
-      '<div style="font-size:10px;color:#888;margin-top:2px">👍' + s.like + ' 👎' + s.dislike + '</div>';
+
+    el.textContent = '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+
+    const countSpan = document.createElement('span');
+    countSpan.className = 'char-star-count';
+    countSpan.textContent = '(' + s.star.toFixed(1) + ')';
+    el.appendChild(countSpan);
+
+    const detailDiv = document.createElement('div');
+    detailDiv.style.cssText = 'font-size:10px;color:#888;margin-top:2px';
+    detailDiv.textContent = '👍' + s.like + ' 👎' + s.dislike;
+    el.appendChild(detailDiv);
   });
 }
 
+// === 天気予報 (JMA API) ===
+const WEATHER_EMOJI = {
+  '100': '☀️', '101': '🌤️', '102': '🌦️', '103': '🌦️', '104': '🌨️',
+  '110': '⛅', '111': '⛅', '112': '🌦️', '113': '🌦️', '114': '🌨️',
+  '115': '🌨️', '116': '⛅', '117': '⛅', '118': '⛅',
+  '120': '🌦️', '121': '🌦️', '122': '🌨️', '123': '🌤️', '124': '🌤️',
+  '130': '🌤️', '131': '🌤️',
+  '200': '☁️', '201': '⛅', '202': '🌧️', '203': '🌧️', '204': '🌨️',
+  '205': '🌨️', '206': '🌧️', '207': '🌧️', '208': '🌨️', '209': '☁️',
+  '210': '☁️', '211': '☁️', '212': '🌧️', '213': '🌧️', '214': '🌨️',
+  '215': '🌨️', '216': '☁️', '217': '☁️', '218': '☁️',
+  '220': '🌧️', '221': '🌧️', '222': '🌨️', '223': '⛅', '224': '⛅',
+  '225': '☁️', '226': '🌨️',
+  '228': '🌧️', '229': '🌧️', '230': '🌨️', '231': '☁️',
+  '240': '☁️', '250': '☁️',
+  '300': '🌧️', '301': '🌦️', '302': '🌧️', '303': '🌨️', '304': '🌧️',
+  '306': '🌧️', '308': '🌧️⚡', '309': '🌨️',
+  '311': '🌧️', '313': '🌧️', '314': '🌨️',
+  '315': '🌨️', '316': '🌧️', '317': '🌧️', '320': '🌧️', '321': '🌧️',
+  '322': '🌨️', '323': '🌦️', '324': '🌦️', '325': '🌧️',
+  '326': '🌨️', '327': '🌨️', '328': '🌧️',
+  '329': '🌧️', '340': '🌨️', '350': '🌧️',
+  '400': '🌨️', '401': '🌨️', '402': '🌨️', '403': '🌨️', '405': '🌨️',
+  '406': '🌨️', '407': '🌨️', '409': '🌨️',
+  '411': '🌨️', '413': '🌨️', '414': '🌧️',
+  '420': '🌨️', '421': '🌨️', '422': '🌨️', '423': '🌨️',
+  '425': '🌨️', '426': '🌨️', '427': '🌨️',
+  '450': '🌨️',
+};
+
+function getWeatherEmoji(code) {
+  return WEATHER_EMOJI[String(code)] || '🌤️';
+}
+
+async function loadWeather(areaCode) {
+  try {
+    const res = await fetch(JMA_FORECAST_URL + areaCode + '.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    const ts = data[0].timeSeries;
+    // 天気情報（最初のtimeSeries）
+    const weatherAreas = ts[0].areas;
+    const area = weatherAreas[0];
+    const areaName = area.area.name;
+    const todayCode = area.weatherCodes[0];
+    const todayWeather = area.weathers ? area.weathers[0] : '';
+    // 短い天気表現に整形
+    const shortWeather = todayWeather.replace(/　/g, ' ').split(/\s/)[0] || todayWeather;
+
+    // 明日の天気（あれば）
+    let tomorrowCode = '';
+    let tomorrowDesc = '';
+    if (area.weatherCodes.length > 1) {
+      tomorrowCode = area.weatherCodes[1];
+      tomorrowDesc = area.weathers ? (area.weathers[1] || '').replace(/　/g, ' ').split(/\s/)[0] : '';
+    }
+
+    // 気温（2番目または3番目のtimeSeriesから取得）
+    let tempHigh = '', tempLow = '';
+    for (let i = 1; i < ts.length; i++) {
+      const tempAreas = ts[i].areas;
+      if (tempAreas && tempAreas[0] && tempAreas[0].temps) {
+        const temps = tempAreas[0].temps;
+        if (temps.length >= 2) {
+          tempLow = temps[0];
+          tempHigh = temps[1];
+        } else if (temps.length === 1) {
+          tempHigh = temps[0];
+        }
+        break;
+      }
+    }
+
+    // UI更新
+    const bar = document.getElementById('weather-bar');
+    document.getElementById('weather-icon').textContent = getWeatherEmoji(todayCode);
+    document.getElementById('weather-area').textContent = areaName;
+    document.getElementById('weather-desc').textContent = shortWeather;
+    document.getElementById('weather-high').textContent = tempHigh ? tempHigh + '°' : '--';
+    document.getElementById('weather-low').textContent = tempLow ? tempLow + '°' : '--';
+
+    if (tomorrowCode) {
+      document.getElementById('weather-tomorrow-icon').textContent = getWeatherEmoji(tomorrowCode);
+      document.getElementById('weather-tomorrow-desc').textContent = tomorrowDesc || '---';
+    }
+
+    bar.classList.add('visible');
+
+    // キャラ別天気コメントをチャットに投稿
+    const weatherInfo = { areaName, todayWeather, shortWeather, todayCode, tomorrowCode, tomorrowDesc, tempHigh, tempLow };
+    addWeatherComments(weatherInfo);
+  } catch (e) {
+    console.warn('天気予報の取得に失敗:', e);
+  }
+}
+
+// === キャラ別天気コメント生成 ===
+function addWeatherComments(w) {
+  const high = Number(w.tempHigh) || null;
+  const low = Number(w.tempLow) || null;
+  const code = Number(w.todayCode) || 0;
+  const isRain = code >= 300 && code < 400;
+  const isSnow = code >= 400 && code < 500;
+  const isCloudyRain = (code >= 200 && code < 300) && String(w.todayCode).match(/02|06|07|08|09/);
+  const willRain = isRain || isSnow || isCloudyRain;
+  const tomorrowRain = (Number(w.tomorrowCode) >= 300 && Number(w.tomorrowCode) < 400) ||
+                       (Number(w.tomorrowCode) >= 400 && Number(w.tomorrowCode) < 500);
+
+  // --- Ray: 天気予報全般 ---
+  let rayMsg = w.areaName + 'の今日の天気は' + w.shortWeather + '。';
+  if (high && low) {
+    rayMsg += '最高' + high + '°C、最低' + low + '°C。';
+  } else if (high) {
+    rayMsg += '最高気温は' + high + '°C。';
+  }
+  if (w.tomorrowDesc) {
+    rayMsg += '明日は' + w.tomorrowDesc + 'の予報だよ。';
+  }
+  addMsg('ray', rayMsg);
+
+  // --- Arc: 気温に応じた服装アドバイス ---
+  let arcMsg = '';
+  const ref = high || low;
+  if (ref !== null) {
+    if (ref >= 30) {
+      arcMsg = '今日は暑くなりそうだね！通気性のいい服で、水分もこまめに取ってね。熱中症に気をつけて。';
+    } else if (ref >= 25) {
+      arcMsg = '半袖でちょうどいい気温だね。日差しが強いなら帽子やサングラスもあると安心だよ。';
+    } else if (ref >= 20) {
+      arcMsg = '過ごしやすい気温だね。薄手の長袖か、羽織るもの一枚あると調節しやすいよ。';
+    } else if (ref >= 15) {
+      arcMsg = '少し肌寒いかも。長袖にカーディガンとか、重ね着で調節するのがおすすめだよ。';
+    } else if (ref >= 10) {
+      arcMsg = 'しっかり冷えるから、ジャケットやコートを忘れずにね。暖かくして出かけよう。';
+    } else if (ref >= 5) {
+      arcMsg = 'かなり寒いよ！厚手のコートにマフラーや手袋もあった方がいいかも。';
+    } else {
+      arcMsg = '真冬の寒さだね…ダウンコートにしっかり防寒して。外に出るなら完全装備で！';
+    }
+  } else {
+    arcMsg = '気温データが取れなかったけど、体調に合わせて無理しない服装にしてね。';
+  }
+  addMsg('arc', arcMsg);
+
+  // --- Shade: 傘が必要かどうか ---
+  let shadeMsg = '';
+  if (isRain) {
+    shadeMsg = '今日は雨だぞ。傘持ってけ。忘れて濡れても知らねーからな。';
+  } else if (isSnow) {
+    shadeMsg = '雪だってさ。傘いるだろ、当然。足元も滑るから気をつけろよ。';
+  } else if (isCloudyRain) {
+    shadeMsg = '曇りだけど雨降るかもな。折りたたみ傘くらい突っ込んどけ。';
+  } else if (tomorrowRain) {
+    shadeMsg = '今日は傘いらねーけど、明日は降りそうだ。明日の準備は今日のうちにしとけ。';
+  } else {
+    shadeMsg = '今日は傘いらねーよ。身軽に行ってこい。';
+  }
+  addMsg('shade', shadeMsg);
+}
+
+// === Daily ===
+function loadDaily() {
+  const areaParam = new URLSearchParams(window.location.search).get('area') || '190000';
+  const url = GAS_URL + '?action=daily&area=' + areaParam;
+
+  jsonp(url, 'daily', 20000).then(data => {
+    if (!data.daily) return;
+    let replies = [];
+    if (Array.isArray(data.daily)) {
+      replies = data.daily;
+    } else if (typeof data.daily === 'string') {
+      try { replies = JSON.parse(data.daily); } catch (e) { replies = parseReplies(data.daily, 'arc'); }
+    }
+    if (!replies || replies.length === 0) return;
+
+    const section = document.getElementById('daily-section');
+    const content = document.getElementById('daily-content');
+    content.textContent = ''; // (K) innerHTMLの代わり
+
+    replies.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'daily-row';
+      const av = document.createElement('div');
+      av.className = 'daily-avatar';
+      const img = document.createElement('img');
+      img.src = IMAGES[r.char] || IMAGES.arc;
+      av.appendChild(img);
+      const bubble = document.createElement('div');
+      bubble.className = 'daily-bubble';
+      bubble.textContent = r.message;
+      row.appendChild(av);
+      row.appendChild(bubble);
+      content.appendChild(row);
+
+      if (r.heat) {
+        content.appendChild(createHeatBar(r.char, r.heat, '34px'));
+      }
+    });
+
+    section.style.display = 'none';
+    // チャットエリアに今日の一言を表示
+    replies.forEach(r => {
+      addMsg(r.char, { message: r.message, _heat: r.heat || 0 });
+    });
+  }).catch(e => {
+    console.warn('Daily取得失敗:', e); // (H) 空catchではなくwarnを出す
+  });
+}
+
+// === Scores ===
+function loadScores() {
+  const url = GAS_URL + '?action=getscores&user=' + encodeURIComponent(getUserName() || 'guest');
+  jsonp(url, 'getscore', 15000).then(data => {
+    if (data.scores) updateIntroScores(data.scores);
+    if (data.favChar) window._favChar = data.favChar;
+  }).catch(e => console.warn('Score取得失敗:', e));
+}
+
+// === API呼び出し ===
 function callAPI(userMessage) {
-  return new Promise((resolve, reject) => {
-    const cb = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const sid = 'jsonp_' + cb;
-    const url = GAS_URL + '?callback=' + cb + '&action=chat&user=' + encodeURIComponent(getUserName() || 'anonymous') + '&message=' + encodeURIComponent(userMessage);
-    const cleanup = () => { delete window[cb]; document.getElementById(sid)?.remove(); };
-    const timer = setTimeout(() => { cleanup(); reject(new Error('タイムアウトしました')); }, 35000);
-    window[cb] = function(data) {
-      clearTimeout(timer); cleanup();
-      if (data.error === 'BUDGET_EXCEEDED') return reject(new Error(data.message));
-      if (data.error) return reject(new Error(data.message || data.error));
-      if (data.budget) updateBudget(data.budget);
-      resolve(data.reply || '');
-    };
-    const s = document.createElement('script'); s.id = sid; s.src = url;
-    s.onerror = () => { clearTimeout(timer); cleanup(); reject(new Error('通信エラーが発生しました')); };
-    document.body.appendChild(s);
+  const url = GAS_URL + '?action=chat&user=' + encodeURIComponent(getUserName() || 'anonymous') + '&message=' + encodeURIComponent(userMessage);
+  return jsonp(url, 'chat', 35000).then(data => {
+    if (data.error === 'BUDGET_EXCEEDED') throw new Error(data.message);
+    if (data.error) throw new Error(data.message || data.error);
+    if (data.budget) updateBudget(data.budget);
+    return data.reply || '';
   });
 }
 
+// === レスポンスパーサー ===
 function parseReplies(raw, fallbackChar) {
   fallbackChar = fallbackChar || 'arc';
-
-  // JSON配列パース（複数パターン対応）
+  // JSON配列パース
   try {
-    // そのままJSONとして試みる
     const trimmed = raw.trim();
     if (trimmed.startsWith('[')) {
       const a = JSON.parse(trimmed);
       if (Array.isArray(a) && a.length > 0) return a;
     }
-  } catch(e) {}
+  } catch (e) { /* JSONパース失敗は想定内 */ }
 
   try {
-    // []を含む部分を抽出
     const m = raw.match(/\[[\s\S]*\]/);
     if (m) {
       const a = JSON.parse(m[0]);
       if (Array.isArray(a) && a.length > 0) return a;
     }
-  } catch(e) {}
+  } catch (e) { /* JSONパース失敗は想定内 */ }
 
-  // "ray:... / arc:... / shade:..." 形式パース
+  // "ray:... / arc:... / shade:..." 形式
   if (raw.includes(' / ')) {
     const parts = raw.split(' / ');
     const result = [];
@@ -597,9 +875,7 @@ function parseReplies(raw, fallbackChar) {
       if (colon > 0) {
         const char = part.slice(0, colon).trim().toLowerCase();
         const message = part.slice(colon + 1).trim();
-        if (['ray','arc','shade'].includes(char)) {
-          result.push({ char, message });
-        }
+        if (CHARS.includes(char)) result.push({ char, message });
       }
     }
     if (result.length > 0) return result;
@@ -608,13 +884,19 @@ function parseReplies(raw, fallbackChar) {
   return [{ char: fallbackChar, message: raw }];
 }
 
+// === チャットフロー ===
 async function runConversation(userText) {
-  hideError(); sendBtn.disabled = true;
-  addMsg('user', userText); addTyping('typing');
+  hideError();
+  isSending = true; // (E)
+  sendBtn.disabled = true;
+  addMsg('user', userText);
 
   // メンションキャラを検出（フォールバック用）
   const mentionMatch = userText.match(/@(Ray|Arc|Shade)/i);
   const fallbackChar = mentionMatch ? mentionMatch[1].toLowerCase() : 'arc';
+
+  // (B) タイピング時にfallbackCharのアバターを表示
+  addTyping('typing', fallbackChar);
 
   try {
     const raw = await callAPI(userText);
@@ -623,54 +905,109 @@ async function runConversation(userText) {
     replies.forEach(r => {
       addMsg(r.char, { message: r.message, _heat: r.heat || 0 });
     });
-  } catch(err) {
-    removeTyping('typing'); showError(err.message || 'エラーが発生しました');
+  } catch (err) {
+    removeTyping('typing');
+    showError(err.message || 'エラーが発生しました');
   }
-  sendBtn.disabled = false; inputEl.focus();
+  isSending = false; // (E)
+  sendBtn.disabled = false;
+  inputEl.focus();
 }
 
+// === 送信ハンドラ ===
+function handleSend() {
+  if (isSending) return; // (E) 二重送信防止
+  currentMode === 'name_input' ? submitName() : submitChat();
+}
+
+function submitName() {
+  const name = inputEl.value.trim();
+  if (!name) return;
+  setUserName(name);
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+  inputEl.placeholder = 'メッセージを入力...';
+  currentMode = 'chat';
+  updateLoginInfo();
+  addMsg('arc', 'よろしく、' + getDisplayName() + '！何でも話しかけてね。');
+}
+
+function submitChat() {
+  const t = inputEl.value.trim();
+  if (!t || sendBtn.disabled || isSending) return; // (E)
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+  runConversation(t);
+}
+
+function switchToNameInput() {
+  inputEl.placeholder = 'あなたのお名前を入力...';
+  currentMode = 'name_input';
+  updateLoginInfo();
+  addMsg('arc', 'はじめまして！あなたのお名前を教えてください。');
+}
+
+// === Event Listeners ===
 sendBtn.addEventListener('click', handleSend);
+
+// (A) chatモードでもEnter送信対応
 inputEl.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.isComposing && currentMode === 'name_input' && !e.shiftKey) {
-    e.preventDefault(); handleSend();
+  if (e.key === 'Enter' && !e.isComposing && !e.shiftKey) {
+    e.preventDefault();
+    handleSend();
   }
 });
+
 inputEl.addEventListener('input', () => {
   inputEl.style.height = 'auto';
   inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + 'px';
 });
 
-function handleSend() { currentMode === 'name_input' ? submitName() : submitChat(); }
+document.getElementById('login-btn').addEventListener('click', () => {
+  if (confirm('別のアカウントでログインしますか？')) {
+    clearUserName();
+    msgsEl.textContent = '';
+    switchToNameInput();
+  }
+});
 
-function submitName() {
-  const name = inputEl.value.trim(); if (!name) return;
-  setUserName(name); inputEl.value = ''; inputEl.style.height = 'auto';
-  inputEl.placeholder = 'メッセージを入力...';
-  currentMode = 'chat'; updateLoginInfo();
-  addMsg('arc', 'よろしく、' + getDisplayName() + '！何でも話しかけてね。');
-}
+// (C) Introパネルの状態永続化
+document.getElementById('intro-close').addEventListener('click', () => {
+  document.getElementById('intro').style.display = 'none';
+  localStorage.setItem('sanmin_intro_closed', '1');
+});
 
-function submitChat() {
-  const t = inputEl.value.trim(); if (!t || sendBtn.disabled) return;
-  inputEl.value = ''; inputEl.style.height = 'auto'; runConversation(t);
-}
+// === (L) PWA マニフェスト（インラインBlob生成） ===
+(function setupPWA() {
+  const manifest = {
+    name: 'さんみん',
+    short_name: 'さんみん',
+    description: '3人のAIが、あなたの話を一緒に考えます',
+    start_url: '.',
+    display: 'standalone',
+    background_color: '#efebe1',
+    theme_color: '#ffffff',
+    icons: [
+      { src: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Arc.png', sizes: '192x192', type: 'image/png' },
+      { src: 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/Arc.png', sizes: '512x512', type: 'image/png' }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = URL.createObjectURL(blob);
+  document.head.appendChild(link);
+})();
 
-function switchToNameInput() {
-  inputEl.placeholder = 'あなたのお名前を入力...';
-  currentMode = 'name_input'; updateLoginInfo();
-  addMsg('arc', 'はじめまして！あなたのお名前を教えてください。');
-}
-
-function getSuffix() { return localStorage.getItem('yakusoku_suffix') || 'さん'; }
-function setSuffix(s) { localStorage.setItem('yakusoku_suffix', s); }
-function getDisplayName() { return getUserName() + getSuffix(); }
-
+// === Init ===
 (function init() {
   const params = new URLSearchParams(window.location.search);
   const urlUser = params.get('user');
   const urlSuffix = params.get('suffix');
   const urlIcon = params.get('icon');
-  if (urlIcon && ['ray','arc','shade'].includes(urlIcon.toLowerCase())) {
+  const areaCode = params.get('area') || '190000';
+
+  if (urlIcon && CHARS.includes(urlIcon.toLowerCase())) {
     const iconUrl = 'https://raw.githubusercontent.com/sanrokun3610/yakusoku-3sages/main/' +
       urlIcon.charAt(0).toUpperCase() + urlIcon.slice(1).toLowerCase() + '.png';
     document.getElementById('app-icon').href = iconUrl;
@@ -683,16 +1020,20 @@ function getDisplayName() { return getUserName() + getSuffix(); }
     if (urlSuffix) setSuffix(urlSuffix);
     currentMode = 'chat';
     updateLoginInfo();
-    // おかえりは今日の一言で代替
   } else {
     const name = getUserName();
-    if (name) { currentMode = 'chat'; updateLoginInfo();
-      // おかえりは今日の一言で代替
-    }
+    if (name) { currentMode = 'chat'; updateLoginInfo(); }
     else { switchToNameInput(); }
   }
+
+  // (C) Introパネル状態復元
+  if (localStorage.getItem('sanmin_intro_closed') === '1') {
+    document.getElementById('intro').style.display = 'none';
+  }
+
   loadScores();
   loadDaily();
+  loadWeather(areaCode); // 天気予報読み込み
 })();
 </script>
 </body>
