@@ -206,7 +206,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 14:50</span>
+    <span id="ver-display">2026-04-07 14:58</span>
     <span id="budget-display"></span>
   </div>
   <div id="intro">
@@ -416,7 +416,8 @@ function updateIntroScores(scores) {
     const half = (s.star - full) >= 0.5 ? 1 : 0;
     const empty = 5 - full - half;
     el.innerHTML = '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty) +
-      '<span class="char-star-count">(' + s.star.toFixed(1) + ')</span>';
+      '<span class="char-star-count">(' + s.star.toFixed(1) + ')</span>' +
+      '<div style="font-size:10px;color:#888;margin-top:2px">👍' + s.like + ' 👎' + s.dislike + '</div>';
   });
 }
 
