@@ -287,7 +287,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07</span>
+    <span id="ver-display"></span>
     <span id="budget-display"></span>
   </div>
 
@@ -428,7 +428,7 @@ function updateLoginInfo() {
   const banner = document.getElementById('user-banner');
   const bannerName = document.getElementById('user-banner-name');
   if (name) {
-    bannerName.textContent = name + ' としてログイン中';
+    bannerName.textContent = getDisplayName() + ' としてログイン中';
     banner.style.display = 'flex';
   } else {
     banner.style.display = 'none';
@@ -1169,6 +1169,13 @@ document.getElementById('intro-close').addEventListener('click', () => {
     document.getElementById('intro').style.display = 'none';
     document.getElementById('score-summary').classList.add('visible');
   }
+
+  // 更新時刻を表示
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  document.getElementById('ver-display').textContent =
+    now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
+    ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
 
   loadScores();
   loadDaily();
