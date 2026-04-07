@@ -206,7 +206,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 14:45</span>
+    <span id="ver-display">2026-04-07 14:50</span>
     <span id="budget-display"></span>
   </div>
   <div id="intro">
@@ -375,12 +375,13 @@ function updateBudget(b) {
 
 function sendScore(char, type, likeSpan, dislikeSpan) {
   const cb = 'score_' + Date.now();
-  const url = GAS_URL + '?callback=' + cb + '&action=score&char=' + char + '&type=' + type;
+  const url = GAS_URL + '?callback=' + cb + '&action=score&char=' + char + '&type=' + type + '&user=' + encodeURIComponent(getUserName() || 'guest');
   const cleanup = () => { delete window[cb]; document.getElementById('s_' + cb)?.remove(); };
   window[cb] = function(data) {
     cleanup();
     if (data.scores) {
       updateIntroScores(data.scores);
+      if (data.favChar) window._favChar = data.favChar;
       const s = data.scores[char];
       if (s) {
         likeSpan.textContent = s.like;
@@ -396,9 +397,9 @@ function sendScore(char, type, likeSpan, dislikeSpan) {
 
 function loadScores() {
   const cb = 'getscore_' + Date.now();
-  const url = GAS_URL + '?callback=' + cb + '&action=getscores';
+  const url = GAS_URL + '?callback=' + cb + '&action=getscores&user=' + encodeURIComponent(getUserName() || 'guest');
   const cleanup = () => { delete window[cb]; document.getElementById('s_' + cb)?.remove(); };
-  window[cb] = function(data) { cleanup(); if (data.scores) updateIntroScores(data.scores); };
+  window[cb] = function(data) { cleanup(); if (data.scores) updateIntroScores(data.scores); if (data.favChar) window._favChar = data.favChar; };
   const s = document.createElement('script');
   s.id = 's_' + cb;
   s.src = url;
@@ -536,10 +537,14 @@ function getDisplayName() { return getUserName() + getSuffix(); }
     if (urlSuffix) setSuffix(urlSuffix);
     currentMode = 'chat';
     updateLoginInfo();
-    addMsg('arc', 'おかえり、' + getDisplayName() + '！今日はどんなことを話しましょうか？');
+    const fav1 = window._favChar || 'arc';
+    addMsg(fav1, 'おかえり、' + getDisplayName() + '！今日はどんなことを話しましょうか？');
   } else {
     const name = getUserName();
-    if (name) { currentMode = 'chat'; updateLoginInfo(); addMsg('arc', 'おかえり、' + getDisplayName() + '！今日はどんなことを話しましょうか？'); }
+    if (name) { currentMode = 'chat'; updateLoginInfo();
+      const fav2 = window._favChar || 'arc';
+      addMsg(fav2, 'おかえり、' + getDisplayName() + '！今日はどんなことを話しましょうか？');
+    }
     else { switchToNameInput(); }
   }
   loadScores();
