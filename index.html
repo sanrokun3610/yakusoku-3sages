@@ -206,7 +206,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <span class="badge arc">Arc</span>
       <span class="badge shade">Shade</span>
     </div>
-    <span id="ver-display">2026-04-07 14:37</span>
+    <span id="ver-display">2026-04-07 14:45</span>
     <span id="budget-display"></span>
   </div>
   <div id="intro">
@@ -333,8 +333,19 @@ function addMsg(char, text) {
       dislikeBtn.classList.add('disliked');
       sendScore(char, 'dislike', likeBtn.querySelector('span'), dislikeBtn.querySelector('span'));
     });
+    const replyBtn = document.createElement('button');
+    replyBtn.className = 'score-btn';
+    replyBtn.innerHTML = '↩ 返信';
+    replyBtn.addEventListener('click', () => {
+      const tag = '@' + char.charAt(0).toUpperCase() + char.slice(1) + ' ';
+      inputEl.value = tag;
+      inputEl.focus();
+      inputEl.style.height = 'auto';
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + 'px';
+    });
     scoreRow.appendChild(likeBtn);
     scoreRow.appendChild(dislikeBtn);
+    scoreRow.appendChild(replyBtn);
     msgsEl.appendChild(scoreRow);
   }
 
